@@ -2,16 +2,218 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <meta
-        name="viewport"
+  <meta name="viewport"
         content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"/>
-  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-  <link rel="stylesheet" href="public/css/normalize.css" />
-  <link rel="stylesheet" href="public/css/main.css" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+  <link rel="stylesheet" href="public/css/normalize.css"/>
+  <link rel="stylesheet" href="public/css/main.css"/>
   <title>Les Petits Plats</title>
 </head>
 <body>
-
+<header class="header">
+  <img src="public/logo.svg" alt="Logo">
+  <h1>Les petits plats</h1>
+</header>
+<main class="main">
+  <section class="search">
+    
+    <label class="search__searchbar" for="searchbar">
+      <input type="text" id="searchbar"
+             placeholder="Rechercher un ingrédient, appareil, ustensiles ou une recette">
+      <img src="public/icons/magnifier-black.svg" alt="">
+    </label>
+    
+    <div class="search__selected-tags">
+      <span class="tag tag--ingredient">
+        <span class="tag__text">Coco</span>
+        <img class="tag__icon" src="public/icons/delete-white.svg" alt="">
+      </span>
+      <span class="tag tag--appliance">
+        <span class="tag__text">Blender</span>
+        <img class="tag__icon" src="public/icons/delete-white.svg" alt="">
+      </span>
+      <span class="tag tag--ustensils">
+        <span class="tag__text">Mixer</span>
+        <img class="tag__icon" src="public/icons/delete-white.svg" alt="">
+      </span>
+    </div>
+    
+    <div class="search__dropdowns">
+      <div class="dropdown dropdown--ingredients">
+        <p class="dropdown__title">Ingrédients</p>
+        <label class="dropdown__searchbar" for="ingredients" hidden>
+          <input type="text" id="ingredients"
+                 placeholder="Rechercher un ingrédient">
+        </label>
+        <img class="dropdown__arrow" src="public/icons/chevron-down-white.svg"
+             alt="">
+        <ul class="dropdown__items">
+          <li>Ail</li>
+          <li>Ananas</li>
+          <li>Banane</li>
+          <li>Basilic</li>
+          <li>Beurre</li>
+          <li>Bicarbonate</li>
+          <li>Blanc de dinde</li>
+          <li>Boudoirs</li>
+          <li>Carotte</li>
+          <li>Champignons de paris</li>
+          <li>Chocolat</li>
+          <li>Citron</li>
+          <li>Concombre</li>
+          <li>Coulis de tomate</li>
+          <li>Courgette</li>
+          <li>Crème Fraiche</li>
+          <li>Crème liquide</li>
+          <li>Cumin</li>
+          <li>Eau</li>
+          <li>Emmental</li>
+          <li>Farine</li>
+          <li>Farine de blé noir</li>
+          <li>Feuilles de laitue</li>
+          <li>Fraise</li>
+          <li>Fromage blanc</li>
+          <li>Fromage de chèvre</li>
+          <li>Fromage à raclette</li>
+          <li>Glace à la vanille</li>
+          <li>Gruyère</li>
+          <li>Haricots verts</li>
+        </ul>
+      </div>
+      
+      <div class="dropdown dropdown--appliance">
+        <p class="dropdown__title">Appareil</p>
+        <label class="dropdown__searchbar" for="appliance" hidden>
+          <input type="text" id="appliance"
+                 placeholder="Rechercher un appareil">
+        </label>
+        <img class="dropdown__arrow" src="public/icons/chevron-down-white.svg"
+             alt="">
+      </div>
+      
+      <div class="dropdown dropdown--ustensils">
+        <p class="dropdown__title">Ustensiles</p>
+        <label class="dropdown__searchbar" for="ustensils" hidden>
+          <input type="text" id="ustensils"
+                 placeholder="Rechercher un ustensile">
+        </label>
+        <img class="dropdown__arrow" src="public/icons/chevron-down-white.svg"
+             alt="">
+      </div>
+    
+    </div>
+  </section>
+  <section class="gallery">
+    <div class="card card--recipe">
+      <div class="card__img"></div>
+      <div class="card__infos">
+        <div class="card__infos__header">
+          <h2 class="card__infos__title">Limonade de Coco</h2>
+          <p class="card__infos__time">
+            <img src="public/icons/clock-black.svg" alt="">
+            10mn
+          </p>
+        </div>
+        <div class="card__infos__text">
+          <ul class="card__infos__ingredients">
+            <li>
+              <strong>Lait de coco</strong>: 400ml
+            </li>
+            <li>
+              <strong>Jus de citron</strong>: 2
+            </li>
+            <li>
+              <strong>Crème de coco</strong>: 4 cuillères
+            </li>
+            <li>
+              <strong>Sucre</strong>: 20g
+            </li>
+            <li>
+              <strong>Glaçons</strong>: 2
+            </li>
+          </ul>
+          <p class="card__infos__instructions">
+            Mettre les glaçons à votre goût dans le blender, ajouter le lait, la
+            crème de coco, le jus de 2 citrons et le sucre. Mixer jusqu'à avoir
+            la consistence désirée
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="card card--recipe">
+      <div class="card__img"></div>
+      <div class="card__infos">
+        <div class="card__infos__header">
+          <h2 class="card__infos__title">Limonade de Coco</h2>
+          <p class="card__infos__time">
+            <img src="public/icons/clock-black.svg" alt="">
+            10mn
+          </p>
+        </div>
+        <div class="card__infos__text">
+          <ul class="card__infos__ingredients">
+            <li>
+              <strong>Lait de coco</strong>: 400ml
+            </li>
+            <li>
+              <strong>Jus de citron</strong>: 2
+            </li>
+            <li>
+              <strong>Crème de coco</strong>: 4 cuillères
+            </li>
+            <li>
+              <strong>Sucre</strong>: 20g
+            </li>
+            <li>
+              <strong>Glaçons</strong>: 2
+            </li>
+          </ul>
+          <p class="card__infos__instructions">
+            Mettre les glaçons à votre goût dans le blender, ajouter le lait, la
+            crème de coco, le jus de 2 citrons et le sucre. Mixer jusqu'à avoir
+            la consistence désirée
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="card card--recipe">
+      <div class="card__img"></div>
+      <div class="card__infos">
+        <div class="card__infos__header">
+          <h2 class="card__infos__title">Limonade de Coco</h2>
+          <p class="card__infos__time">
+            <img src="public/icons/clock-black.svg" alt="">
+            10mn
+          </p>
+        </div>
+        <div class="card__infos__text">
+          <ul class="card__infos__ingredients">
+            <li>
+              <strong>Lait de coco</strong>: 400ml
+            </li>
+            <li>
+              <strong>Jus de citron</strong>: 2
+            </li>
+            <li>
+              <strong>Crème de coco</strong>: 4 cuillères
+            </li>
+            <li>
+              <strong>Sucre</strong>: 20g
+            </li>
+            <li>
+              <strong>Glaçons</strong>: 2
+            </li>
+          </ul>
+          <p class="card__infos__instructions">
+            Mettre les glaçons à votre goût dans le blender, ajouter le lait, la
+            crème de coco, le jus de 2 citrons et le sucre. Mixer jusqu'à avoir
+            la consistence désirée
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
 </body>
 <script type="module" src="src/main.mjs"></script>
 </html>

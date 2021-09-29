@@ -1,0 +1,16 @@
+@use '../utils/variables' as *;
+@use '../utils/mixins' as *;
+
+.header {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin: 42px 0 17px 0;
+  h1 {
+    margin: .5rem 0;
+    font-family: "DM Sans", sans-serif;
+    font-size: 2.25rem;
+    color: $primary;
+  }
+}

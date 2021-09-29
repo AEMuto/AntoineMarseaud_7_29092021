@@ -1,0 +1,34 @@
+@use '../utils/variables' as *;
+@use '../utils/mixins' as *;
+
+.tag {
+  font-size: .875rem;
+  font-weight: 700;
+  color: $white;
+  padding: .5rem .75rem;
+  margin-right: 1rem;
+  min-width: 90px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  &__text {
+    flex: 1;
+  }
+  &__icon {
+    margin-left: .5rem;
+    align-self: flex-end;
+  }
+
+}
+
+.tag.tag--ingredient {
+  background: $bg-blue;
+}
+
+.tag.tag--appliance {
+  background: $bg-green;
+}
+
+.tag.tag--ustensils {
+  background: $bg-orange;
+}

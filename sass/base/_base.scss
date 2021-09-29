@@ -22,3 +22,12 @@ ul {
 a {
   text-decoration: none;
 }
+
+input {
+  border: none;
+  background: none;
+}
+
+body {
+  padding: 0 max((100vw - 1240px) / 2, 7vw);
+}

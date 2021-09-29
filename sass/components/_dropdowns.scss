@@ -1,0 +1,53 @@
+@use '../utils/variables' as *;
+@use '../utils/mixins' as *;
+
+.dropdown {
+  position: relative;
+  display: grid;
+  min-width: 170px;
+  padding: 1.5rem 1rem;
+  margin-right: 1rem;
+  border-radius: 5px;
+  color: $white;
+  font-size: 1.125rem;
+  &__title {
+    font-weight: 700;
+  }
+  &__searchbar input {
+    margin-right: 20px;
+    color: $white;
+    font-weight: 700;
+    outline: none;
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+    }
+  }
+  &__arrow {
+    position: absolute;
+    top: 28px;
+    right: 0;
+    margin-right: 1rem;
+
+  }
+
+  &__items {
+    // display: none;
+    display: grid;
+    margin-top: 25px;
+    gap: 1rem;
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+}
+
+.dropdown.dropdown--ingredients {
+  background: $bg-blue;
+}
+
+.dropdown.dropdown--appliance {
+  background: $bg-green;
+}
+
+.dropdown.dropdown--ustensils {
+  background: $bg-orange;
+}
