@@ -1,0 +1,34 @@
+{
+  "name": "les_petits_plats",
+  "version": "1.0.0",
+  "description": "Exploring search algorithm with recipes",
+  "main": "index.html",
+  "scripts": {
+    "sass": "sass --watch --style=compressed ./sass/main.scss:./public/css/main.css ./sass/pages.scss:./public/css/pages.css",
+    "prefix": "postcss ./public/css/*.css --use autoprefixer -d ./public/css/prefixed/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AEMuto/AntoineMarseaud_7_29092021.git"
+  },
+  "author": "Antoine Marseaud",
+  "browserslist": [
+    "last 4 versions"
+  ],
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AEMuto/AntoineMarseaud_7_29092021/issues"
+  },
+  "homepage": "https://github.com/AEMuto/AntoineMarseaud_7_29092021#readme",
+  "devDependencies": {
+    "stylelint": "^13.13.1",
+    "stylelint-config-idiomatic-order": "^8.1.0",
+    "stylelint-config-sass-guidelines": "^8.0.0",
+    "stylelint-order": "^4.1.0"
+  },
+  "prettier": {
+    "printWidth": 90,
+    "jsxBracketSameLine": true,
+    "htmlWhitespaceSensitivity": "ignore"
+  }
+}
