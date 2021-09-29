@@ -4,7 +4,7 @@
   "description": "Exploring search algorithm with recipes",
   "main": "index.html",
   "scripts": {
-    "sass": "sass --watch --style=compressed ./sass/main.scss:./public/css/main.css ./sass/pages.scss:./public/css/pages.css",
+    "sass": "sass --watch --style=compressed ./sass/main.scss:./public/css/main.css",
     "prefix": "postcss ./public/css/*.css --use autoprefixer -d ./public/css/prefixed/"
   },
   "repository": {
