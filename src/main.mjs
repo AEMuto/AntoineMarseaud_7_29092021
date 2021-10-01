@@ -91,8 +91,8 @@ document.addEventListener('stateChanged', updateRecipesState);
 // Barre de recherche *****************************************************************************
 const recipeSearchbar = document.querySelector('#recipes');
 
-function filterRecipesData(term) {
-  const result = recipesData.filter(recipe => recipe.text.includes(term));
+function filterRecipesData(query) {
+  const result = recipesData.filter(recipe => recipe.text.includes(query));
   const ids = result.map(recipe => recipe.id);
   tempRecipesState = recipesState.filter(recipeInstance => {
     return ids.includes(recipeInstance.id);
@@ -101,14 +101,15 @@ function filterRecipesData(term) {
 }
 
 function handleRecipeSearch(e) {
-  if (e.target.value.length >= 3) {
-    filterRecipesData(e.target.value.toLowerCase());
+  const query = e.target.value.toLowerCase();
+  if (query.length >= 3) {
+    filterRecipesData(query);
   }
-  if (e.key === 'Backspace' && e.target.value.length >= 3) {
+  if (e.key === 'Backspace' && query.length >= 3) {
     resetState();
-    filterRecipesData(e.target.value.toLowerCase());
+    filterRecipesData(query);
   }
-  if (e.key === 'Backspace' && (!e.target.value.length || e.target.value.length < 3)) {
+  if (e.key === 'Backspace' && (!query.length || query.length < 3)) {
     resetState();
   }
 }
@@ -116,7 +117,7 @@ function handleRecipeSearch(e) {
 recipeSearchbar.addEventListener('keyup', handleRecipeSearch);
 
 // Ouverture-Fermeture des dropdowns **************************************************************
-
+const tagsContainer = document.querySelector('.search__selected-tags');
 const dropdowns = Array.from(document.querySelectorAll('.dropdown'));
 let currentDropdown;
 
@@ -130,6 +131,15 @@ function outsideClick(e) {
   document.removeEventListener('click', outsideClick);
 }
 
+function insertTag(value, classType) {
+  const template = `
+  <span class="tag ${classType}">
+    <span class="tag__text">${value}</span>
+    <img class="tag__icon" src="public/icons/delete-white.svg" alt="">
+  </span>`;
+  tagsContainer.insertAdjacentHTML('beforeend', template);
+}
+
 function handleDropdownClick(e) {
   if (currentDropdown) {
     currentDropdown.classList.remove('open');
@@ -137,6 +147,11 @@ function handleDropdownClick(e) {
     currentDropdown.classList.add('open');
     currentDropdown.querySelector('input').focus();
     setTimeout(() => { document.addEventListener('click', outsideClick); }, 10)
+  }
+  if (e.target.dataset.tagclass) {
+    const classType = e.target.dataset.tagclass;
+    const value = e.target.innerText;
+    insertTag(value, classType);
   }
   currentDropdown = e.currentTarget;
   currentDropdown.classList.add('open');
@@ -147,3 +162,40 @@ function handleDropdownClick(e) {
 dropdowns.forEach(dropdown => {
   dropdown.addEventListener('click', handleDropdownClick)
 })
+
+// Recherche Ingrédients **************************************************************************
+const ingredientsSearchbar = document.querySelector('#ingredients');
+const ingredientsSearchbarItems = document.querySelector('.dropdown--ingredients .dropdown__items');
+
+function filterIngredientsData(query) {
+  ingredientsSearchbarItems.innerHTML = '';
+  const result = ingredientsData.filter(ingredient => ingredient.includes(query));
+  console.log(result)
+  const items = result.map(entry => `<li data-tagclass="tag--ingredient">${entry}</li>`);
+  items.forEach(item => ingredientsSearchbarItems.insertAdjacentHTML('beforeend', item));
+}
+
+function handleIngredientSearch(e) {
+  const query = e.target.value.toLowerCase();
+  if (query.length >= 3) {
+    filterIngredientsData(query);
+  }
+  if (e.key === 'Backspace' && query.length >= 3) {
+    //ingredientsData = makeArrayFromKeyInRecipes('ingredients');
+    filterIngredientsData(query);
+  }
+  if (e.key === 'Backspace' && (!query.length || query.length < 3)) {
+    ingredientsSearchbarItems.innerHTML = '';
+    //ingredientsData = makeArrayFromKeyInRecipes('ingredients');
+  }
+}
+
+ingredientsSearchbar.addEventListener('keyup', handleIngredientSearch);
+
+// Recherche Appareil *****************************************************************************
+const applianceSearchbar = document.querySelector('#appliance');
+
+
+// Recherche Ustensils ****************************************************************************
+const ustensilsSearchbar = document.querySelector('#ustensils');
+
