@@ -70,8 +70,13 @@ function resetState() {
 }
 
 function updateRecipesState() {
-  if(!tempRecipesState) {
-    gallery.innerHTML = ``;
+  if(!tempRecipesState.length) {
+    gallery.innerHTML = `
+    <div class="gallery__empty">
+      <p>Aucune recette ne correspond à votre critère… <br>
+      Vous pouvez chercher « tarte aux pommes », « poisson », etc...</p>
+    </div>`;
+    return;
   }
   gallery.innerHTML = '';
   tempRecipesState.forEach(instance => gallery.insertAdjacentHTML('beforeend', instance.getRecipeCardTemplate()));
@@ -92,7 +97,6 @@ function filterRecipesData(term) {
   tempRecipesState = recipesState.filter(recipeInstance => {
     return ids.includes(recipeInstance.id);
   });
-  console.log(tempRecipesState)
   document.dispatchEvent(new CustomEvent('stateChanged'));
 }
 

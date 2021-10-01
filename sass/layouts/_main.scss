@@ -40,7 +40,9 @@
   }
 }
 .gallery {
+  position: relative;
   display: grid;
+  min-height: 30vh;
   margin-top: 95px;
   margin-bottom: 25px;
   gap: 1rem;
@@ -52,5 +54,17 @@
   @include responsive(lg) {
     gap: 3rem;
     grid-template-columns: repeat(3, 1fr);
+  }
+  &__empty {
+    position: absolute;
+    display: flex;
+    inset: 0;
+    p {
+      margin: auto;
+      color: dimgray;
+      font-size: 2rem;
+      font-weight: 700;
+      text-shadow: 1px 1px 3px rgba(0,0,0,.25);
+    }
   }
 }
