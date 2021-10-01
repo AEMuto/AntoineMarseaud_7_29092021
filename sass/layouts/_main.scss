@@ -6,8 +6,8 @@
 }
 .search {
   position: relative;
-  display: flex;
-  flex-direction: column;
+  //display: flex;
+  //flex-direction: column;
   &__searchbar {
     position: relative;
     margin-bottom: 25px;
@@ -30,21 +30,21 @@
   }
   &__selected-tags {
     display: flex;
-    margin-bottom: 25px;
   }
   &__dropdowns {
     position: absolute;
     z-index: 2;
     display: flex;
     align-items: flex-start;
-    margin-top: 156px;
+    bottom: -20px;
+    transform: translateY(100%);
   }
 }
 .gallery {
   position: relative;
   display: grid;
   min-height: 30vh;
-  margin-top: 95px;
+  margin-top: 120px;
   margin-bottom: 25px;
   gap: 1rem;
   grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
