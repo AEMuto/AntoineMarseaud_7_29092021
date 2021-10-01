@@ -14,18 +14,29 @@ recipesState.forEach(instance => gallery.insertAdjacentHTML('beforeend', instanc
 // Mise à jour de l'état **************************************************************************
 
 let tempRecipesState = recipesState;
-let ingredients = makeArrayFromKeyInRecipes('ingredients');
+let recipesData = makeArrayFromKeyInRecipes('recipes');
+// console.log(recipesData);
+let ingredientsData = makeArrayFromKeyInRecipes('ingredients');
 // console.table(ingredients);
-let appliances = makeArrayFromKeyInRecipes('appliances');
-console.log(appliances);
-let ustensils = makeArrayFromKeyInRecipes('ustensils');
+let appliancesData = makeArrayFromKeyInRecipes('appliances');
+// console.log(appliances);
+let ustensilsData = makeArrayFromKeyInRecipes('ustensils');
 //console.log(ustensils);
 
 function makeArrayFromKeyInRecipes(key) {
   switch (key) {
+    case 'recipes':
+      return tempRecipesState
+        .map(recipe => {
+          let result = {}
+          let ingredients = recipe.ingredients.map(ingredient => ingredient.ingredient.toLowerCase());
+          result.id = recipe.id;
+          result.text = [recipe.name.toLowerCase(), ...ingredients, recipe.description.toLowerCase()].join(' ');
+          return result;
+        })
     case 'ingredients':
       return tempRecipesState
-        .map(recipe => recipe.ingredients.map(ingredient => ingredient.ingredient))
+        .map(recipe => recipe.ingredients.map(ingredient => ingredient.ingredient.toLowerCase()))
         .flat()
         .filter((elem, pos, array) => {
           return array.indexOf(elem) === pos;
@@ -52,12 +63,53 @@ function makeArrayFromKeyInRecipes(key) {
   }
 }
 
+function resetState() {
+  if (tempRecipesState.length === recipesState.length) { return }
+  tempRecipesState = recipesState;
+  document.dispatchEvent(new CustomEvent('stateChanged'));
+}
+
 function updateRecipesState() {
+  if(!tempRecipesState) {
+    gallery.innerHTML = ``;
+  }
   gallery.innerHTML = '';
   tempRecipesState.forEach(instance => gallery.insertAdjacentHTML('beforeend', instance.getRecipeCardTemplate()));
+  recipesData = makeArrayFromKeyInRecipes('recipes');
+  ingredientsData = makeArrayFromKeyInRecipes('ingredients');
+  appliancesData = makeArrayFromKeyInRecipes('appliances');
+  ustensilsData = makeArrayFromKeyInRecipes('ustensils');
 }
 
 document.addEventListener('stateChanged', updateRecipesState);
+
+// Barre de recherche *****************************************************************************
+const recipeSearchbar = document.querySelector('#recipes');
+
+function filterRecipesData(term) {
+  const result = recipesData.filter(recipe => recipe.text.includes(term));
+  const ids = result.map(recipe => recipe.id);
+  tempRecipesState = recipesState.filter(recipeInstance => {
+    return ids.includes(recipeInstance.id);
+  });
+  console.log(tempRecipesState)
+  document.dispatchEvent(new CustomEvent('stateChanged'));
+}
+
+function handleRecipeSearch(e) {
+  if (e.target.value.length >= 3) {
+    filterRecipesData(e.target.value.toLowerCase());
+  }
+  if (e.key === 'Backspace' && e.target.value.length >= 3) {
+    resetState();
+    filterRecipesData(e.target.value.toLowerCase());
+  }
+  if (e.key === 'Backspace' && (!e.target.value.length || e.target.value.length < 3)) {
+    resetState();
+  }
+}
+
+recipeSearchbar.addEventListener('keyup', handleRecipeSearch);
 
 // Ouverture-Fermeture des dropdowns **************************************************************
 

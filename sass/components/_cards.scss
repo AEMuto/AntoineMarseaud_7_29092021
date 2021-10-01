@@ -24,6 +24,12 @@
       justify-content: space-between;
       margin-bottom: 15px;
     }
+    &__title {
+      white-space: nowrap;
+      max-width: 230px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
     &__time {
       display: flex;
       align-self: flex-start;
@@ -41,24 +47,9 @@
       font-size: .75rem;
       gap: .5rem;
       grid-template-columns: 1fr 1fr;
-      grid-template-rows: 1fr;
-      max-height: 110.312px;
-      min-height: 89.625px;
-
-    }
-    &__ingredients {
-      max-height: 110.312px;
-      min-height: 89.625px;
-      display: -webkit-box;
-      -webkit-line-clamp: 8;
-      -webkit-box-orient: vertical;
-      word-break: break-word;
-      overflow: hidden;
     }
     &__instructions {
       font-family: Roboto, sans-serif;
-      max-height: 110.312px;
-      min-height: 89.625px;
       display: -webkit-box;
       -webkit-line-clamp: 8;
       -webkit-box-orient: vertical;

@@ -31,3 +31,8 @@ input {
 body {
   padding: 0 max((100vw - 1240px) / 2, 7vw);
 }
+
+h2.card__infos__title {
+  font-size: 1.125rem;
+  font-weight: 400;
+}
