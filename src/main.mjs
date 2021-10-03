@@ -11,17 +11,17 @@ recipes.forEach(recipe => recipesState.push(new Recipe(recipe)));
 
 recipesState.forEach(instance => gallery.insertAdjacentHTML('beforeend', instance.getRecipeCardTemplate()));
 
-// Mise à jour de l'état **************************************************************************
+// Création des "glossaires" **********************************************************************
 
 let tempRecipesState = recipesState;
 let recipesData = makeArrayFromKeyInRecipes('recipes');
 // console.log(recipesData);
 let ingredientsData = makeArrayFromKeyInRecipes('ingredients');
-// console.table(ingredients);
+// console.log(ingredientsData);
 let appliancesData = makeArrayFromKeyInRecipes('appliances');
-// console.log(appliances);
+//console.log(appliancesData);
 let ustensilsData = makeArrayFromKeyInRecipes('ustensils');
-//console.log(ustensils);
+//console.log(ustensilsData);
 
 function makeArrayFromKeyInRecipes(key) {
   switch (key) {
@@ -35,13 +35,21 @@ function makeArrayFromKeyInRecipes(key) {
           return result;
         })
     case 'ingredients':
-      return tempRecipesState
-        .map(recipe => recipe.ingredients.map(ingredient => ingredient.ingredient.toLowerCase()))
+      const result = tempRecipesState
+        .map(recipe => recipe.ingredients.map(ingredient => {
+          return { name: ingredient.ingredient.toLowerCase(), id: recipe.id};
+        }))
         .flat()
-        .filter((elem, pos, array) => {
-          return array.indexOf(elem) === pos;
-        })
-        .sort();
+        .reduce((acc, ingredient, index, array) => {
+          const existingIngredient = acc[ingredient.name];
+          if (existingIngredient) {
+            existingIngredient.push(ingredient.id);
+          } else {
+            acc[ingredient.name] = [ingredient.id];
+          }
+          return acc;
+        }, {});
+      return Object.entries(result);
     case 'appliances':
       return tempRecipesState
         .map(recipe => recipe.appliance)
@@ -62,6 +70,8 @@ function makeArrayFromKeyInRecipes(key) {
       throw new Error('Cannot retrieve data from recipe, bad key');
   }
 }
+
+// Mise à jour de l'état **************************************************************************
 
 function resetState() {
   if (tempRecipesState.length === recipesState.length) { return }
@@ -169,9 +179,9 @@ const ingredientsSearchbarItems = document.querySelector('.dropdown--ingredients
 
 function filterIngredientsData(query) {
   ingredientsSearchbarItems.innerHTML = '';
-  const result = ingredientsData.filter(ingredient => ingredient.includes(query));
+  const result = ingredientsData.filter(ingredient => ingredient[0].includes(query));
   console.log(result)
-  const items = result.map(entry => `<li data-tagclass="tag--ingredient">${entry}</li>`);
+  const items = result.map(entry => `<li data-tagclass="tag--ingredient" data-recipesids="${entry[1].join(' ')}">${entry[0]}</li>`);
   items.forEach(item => ingredientsSearchbarItems.insertAdjacentHTML('beforeend', item));
 }
 
@@ -181,12 +191,10 @@ function handleIngredientSearch(e) {
     filterIngredientsData(query);
   }
   if (e.key === 'Backspace' && query.length >= 3) {
-    //ingredientsData = makeArrayFromKeyInRecipes('ingredients');
     filterIngredientsData(query);
   }
   if (e.key === 'Backspace' && (!query.length || query.length < 3)) {
     ingredientsSearchbarItems.innerHTML = '';
-    //ingredientsData = makeArrayFromKeyInRecipes('ingredients');
   }
 }
 
