@@ -14,14 +14,17 @@ recipesState.forEach(instance => gallery.insertAdjacentHTML('beforeend', instanc
 // Création des "glossaires" **********************************************************************
 
 let tempRecipesState = recipesState;
-let recipesData = makeArrayFromKeyInRecipes('recipes');
-// console.log(recipesData);
-let ingredientsData = makeArrayFromKeyInRecipes('ingredients');
-// console.log(ingredientsData);
-let appliancesData = makeArrayFromKeyInRecipes('appliances');
-//console.log(appliancesData);
-let ustensilsData = makeArrayFromKeyInRecipes('ustensils');
-//console.log(ustensilsData);
+let data = {
+  recipes: makeArrayFromKeyInRecipes('recipes'),
+  ingredients: makeArrayFromKeyInRecipes('ingredients'),
+  appliances: makeArrayFromKeyInRecipes('appliances'),
+  ustensils: makeArrayFromKeyInRecipes('ustensils'),
+}
+
+//console.log(data.recipes);
+//console.log(data.ingredients);
+//console.log(data.appliances;
+//console.log(data.ustensils);
 
 function makeArrayFromKeyInRecipes(key) {
   switch (key) {
@@ -35,12 +38,12 @@ function makeArrayFromKeyInRecipes(key) {
           return result;
         })
     case 'ingredients':
-      const result = tempRecipesState
+      const ingredientsResult = tempRecipesState
         .map(recipe => recipe.ingredients.map(ingredient => {
           return { name: ingredient.ingredient.toLowerCase(), id: recipe.id};
         }))
         .flat()
-        .reduce((acc, ingredient, index, array) => {
+        .reduce((acc, ingredient) => {
           const existingIngredient = acc[ingredient.name];
           if (existingIngredient) {
             existingIngredient.push(ingredient.id);
@@ -49,23 +52,39 @@ function makeArrayFromKeyInRecipes(key) {
           }
           return acc;
         }, {});
-      return Object.entries(result);
+      return Object.entries(ingredientsResult);
     case 'appliances':
-      return tempRecipesState
-        .map(recipe => recipe.appliance)
-        .flat()
-        .filter((elem, pos, array) => {
-          return array.indexOf(elem) === pos;
+      const appliancesResult = tempRecipesState
+        .map(recipe => {
+          return { name: recipe.appliance, id: recipe.id }
         })
-        .sort();
+        .flat()
+        .reduce((acc, appliance) => {
+          const existingAppliance = acc[appliance.name];
+          if (existingAppliance) {
+            existingAppliance.push(appliance.id);
+          } else {
+            acc[appliance.name] = [appliance.id];
+          }
+          return acc;
+        }, {});
+      return Object.entries(appliancesResult);
     case 'ustensils':
-      return tempRecipesState
-        .map(recipe => recipe.ustensils.map(ustensil => ustensil))
+      const ustensilsResult = tempRecipesState
+        .map(recipe => recipe.ustensils.map(ustensil => {
+          return { name: ustensil, id: recipe.id }
+        }))
         .flat()
-        .filter((elem, pos, array) => {
-          return array.indexOf(elem) === pos;
-        })
-        .sort();
+        .reduce((acc, ustensil) => {
+          const existingUstensil = acc[ustensil.name];
+          if (existingUstensil) {
+            existingUstensil.push(ustensil.id);
+          } else {
+            acc[ustensil.name] = [ustensil.id];
+          }
+          return acc;
+        }, {});
+      return Object.entries(ustensilsResult);
     default:
       throw new Error('Cannot retrieve data from recipe, bad key');
   }
@@ -90,10 +109,10 @@ function updateRecipesState() {
   }
   gallery.innerHTML = '';
   tempRecipesState.forEach(instance => gallery.insertAdjacentHTML('beforeend', instance.getRecipeCardTemplate()));
-  recipesData = makeArrayFromKeyInRecipes('recipes');
-  ingredientsData = makeArrayFromKeyInRecipes('ingredients');
-  appliancesData = makeArrayFromKeyInRecipes('appliances');
-  ustensilsData = makeArrayFromKeyInRecipes('ustensils');
+  data.recipes = makeArrayFromKeyInRecipes('recipes');
+  data.ingredients = makeArrayFromKeyInRecipes('ingredients');
+  data.appliances = makeArrayFromKeyInRecipes('appliances');
+  data.ustensils = makeArrayFromKeyInRecipes('ustensils');
 }
 
 document.addEventListener('stateChanged', updateRecipesState);
@@ -102,7 +121,7 @@ document.addEventListener('stateChanged', updateRecipesState);
 const recipeSearchbar = document.querySelector('#recipes');
 
 function filterRecipesData(query) {
-  const result = recipesData.filter(recipe => recipe.text.includes(query));
+  const result = data.recipes.filter(recipe => recipe.text.includes(query));
   const ids = result.map(recipe => recipe.id);
   tempRecipesState = recipesState.filter(recipeInstance => {
     return ids.includes(recipeInstance.id);
@@ -141,9 +160,9 @@ function outsideClick(e) {
   document.removeEventListener('click', outsideClick);
 }
 
-function insertTag(value, classType) {
+function insertTag(value, classType, recipesIds) {
   const template = `
-  <span class="tag ${classType}">
+  <span class="tag ${classType}" data-recipesids="${recipesIds}">
     <span class="tag__text">${value}</span>
     <img class="tag__icon" src="public/icons/delete-white.svg" alt="">
   </span>`;
@@ -160,8 +179,9 @@ function handleDropdownClick(e) {
   }
   if (e.target.dataset.tagclass) {
     const classType = e.target.dataset.tagclass;
+    const recipesIds = e.target.dataset.recipesids;
     const value = e.target.innerText;
-    insertTag(value, classType);
+    insertTag(value, classType, recipesIds);
   }
   currentDropdown = e.currentTarget;
   currentDropdown.classList.add('open');
@@ -173,37 +193,32 @@ dropdowns.forEach(dropdown => {
   dropdown.addEventListener('click', handleDropdownClick)
 })
 
-// Recherche Ingrédients **************************************************************************
-const ingredientsSearchbar = document.querySelector('#ingredients');
-const ingredientsSearchbarItems = document.querySelector('.dropdown--ingredients .dropdown__items');
+// Recherche Dropdowns **************************************************************************
+const dropdownsContainer = document.querySelector('.search__dropdowns');
+const dropdownsSearchbar = document.querySelectorAll('.dropdown__searchbar input');
 
-function filterIngredientsData(query) {
-  ingredientsSearchbarItems.innerHTML = '';
-  const result = ingredientsData.filter(ingredient => ingredient[0].includes(query));
-  console.log(result)
-  const items = result.map(entry => `<li data-tagclass="tag--ingredient" data-recipesids="${entry[1].join(' ')}">${entry[0]}</li>`);
-  items.forEach(item => ingredientsSearchbarItems.insertAdjacentHTML('beforeend', item));
+function filterDropdownsData(query, dataTarget, resultsContainer) {
+  resultsContainer.innerHTML = '';
+  const result = data[dataTarget].filter(item => item[0].includes(query));
+  const items = result.map(entry => `<li data-tagclass="tag--${dataTarget}" data-recipesids="${entry[1].join(' ')}">${entry[0]}</li>`);
+  items.forEach(item => resultsContainer.insertAdjacentHTML('beforeend', item));
 }
 
-function handleIngredientSearch(e) {
+function handleDropdownQuery(e) {
   const query = e.target.value.toLowerCase();
+  const dataTarget = e.target.id;
+  const resultsContainer = dropdownsContainer.querySelector(`[data-for="${dataTarget}"]`)
   if (query.length >= 3) {
-    filterIngredientsData(query);
+    filterDropdownsData(query, dataTarget, resultsContainer);
   }
   if (e.key === 'Backspace' && query.length >= 3) {
-    filterIngredientsData(query);
+    filterDropdownsData(query, dataTarget, resultsContainer);
   }
   if (e.key === 'Backspace' && (!query.length || query.length < 3)) {
-    ingredientsSearchbarItems.innerHTML = '';
+    resultsContainer.innerHTML = '';
   }
 }
 
-ingredientsSearchbar.addEventListener('keyup', handleIngredientSearch);
-
-// Recherche Appareil *****************************************************************************
-const applianceSearchbar = document.querySelector('#appliance');
-
-
-// Recherche Ustensils ****************************************************************************
-const ustensilsSearchbar = document.querySelector('#ustensils');
-
+dropdownsSearchbar.forEach(dropdownInput => {
+  dropdownInput.addEventListener('keyup', handleDropdownQuery);
+});

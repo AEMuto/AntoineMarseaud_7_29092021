@@ -30,22 +30,23 @@
         <p class="dropdown__title">Ingrédients</p>
         <label class="dropdown__searchbar" for="ingredients">
           <input type="text" id="ingredients"
-                 placeholder="Rechercher un ingrédient">
+                 placeholder="Rechercher un ingrédient"
+                 autocomplete="off">
         </label>
         <img class="dropdown__arrow" src="public/icons/chevron-down-white.svg"
              alt="">
-        <ul class="dropdown__items"></ul>
+        <ul class="dropdown__items" data-for="ingredients"></ul>
       </div>
       
       <div class="dropdown dropdown--appliance">
         <p class="dropdown__title">Appareil</p>
-        <label class="dropdown__searchbar" for="appliance">
-          <input type="text" id="appliance"
+        <label class="dropdown__searchbar" for="appliances">
+          <input type="text" id="appliances"
                  placeholder="Rechercher un appareil">
         </label>
         <img class="dropdown__arrow" src="public/icons/chevron-down-white.svg"
              alt="">
-        <ul class="dropdown__items"></ul>
+        <ul class="dropdown__items" data-for="appliances"></ul>
       </div>
       
       <div class="dropdown dropdown--ustensils">
@@ -56,7 +57,7 @@
         </label>
         <img class="dropdown__arrow" src="public/icons/chevron-down-white.svg"
              alt="">
-        <ul class="dropdown__items"></ul>
+        <ul class="dropdown__items" data-for="ustensils"></ul>
       </div>
     
     </div>
