@@ -93,12 +93,14 @@ function makeArrayFromKeyInRecipes(key) {
 // Mise à jour de l'état **************************************************************************
 
 function resetState() {
+  console.log('Reset State')
   if (tempRecipesState.length === recipesState.length) { return }
   tempRecipesState = recipesState;
   document.dispatchEvent(new CustomEvent('stateChanged'));
 }
 
 function updateRecipesState() {
+  console.log('Update State')
   if(!tempRecipesState.length) {
     gallery.innerHTML = `
     <div class="gallery__empty">
@@ -113,6 +115,7 @@ function updateRecipesState() {
   data.ingredients = makeArrayFromKeyInRecipes('ingredients');
   data.appliances = makeArrayFromKeyInRecipes('appliances');
   data.ustensils = makeArrayFromKeyInRecipes('ustensils');
+  console.log(data.recipes);
 }
 
 document.addEventListener('stateChanged', updateRecipesState);
@@ -138,7 +141,7 @@ function handleRecipeSearch(e) {
     resetState();
     filterRecipesData(query);
   }
-  if (e.key === 'Backspace' && (!query.length || query.length < 3)) {
+  if (!query.length || query.length < 3) {
     resetState();
   }
 }
@@ -166,10 +169,18 @@ function insertTag(value, classType, recipesIds) {
     <span class="tag__text">${value}</span>
     <img class="tag__icon" src="public/icons/delete-white.svg" alt="">
   </span>`;
+  //Insertion du tag dans le container
   tagsContainer.insertAdjacentHTML('beforeend', template);
+
+  //TODO: Filtrer les résultats après insertion d'un tag
 }
 
 function handleDropdownClick(e) {
+  const resultsContainer = e.currentTarget.querySelector('ul');
+  const dataTarget = resultsContainer.dataset.for;
+  // Si aucune valeur dans l'input appel de la fonction permettant d'afficher les tags dispo, sinon ne rien faire
+  !e.currentTarget.querySelector('input').value ? showDropdownsData(dataTarget, resultsContainer) : '';
+  // Un menu déroulant a déjà été sélectionné
   if (currentDropdown) {
     currentDropdown.classList.remove('open');
     currentDropdown = e.currentTarget;
@@ -177,12 +188,16 @@ function handleDropdownClick(e) {
     currentDropdown.querySelector('input').focus();
     setTimeout(() => { document.addEventListener('click', outsideClick); }, 10)
   }
+  // Click sur un des résultat
   if (e.target.dataset.tagclass) {
     const classType = e.target.dataset.tagclass;
     const recipesIds = e.target.dataset.recipesids;
     const value = e.target.innerText;
     insertTag(value, classType, recipesIds);
+    e.target.style.display = 'none';
+    console.log(e.target.parentElement.querySelectorAll('li'))
   }
+  // Pas de menu déroulant sélectionné auparavant
   currentDropdown = e.currentTarget;
   currentDropdown.classList.add('open');
   currentDropdown.querySelector('input').focus();
@@ -196,26 +211,46 @@ dropdowns.forEach(dropdown => {
 // Recherche Dropdowns **************************************************************************
 const dropdownsContainer = document.querySelector('.search__dropdowns');
 const dropdownsSearchbar = document.querySelectorAll('.dropdown__searchbar input');
+let tempResultItems;
 
-function filterDropdownsData(query, dataTarget, resultsContainer) {
-  resultsContainer.innerHTML = '';
-  const result = data[dataTarget].filter(item => item[0].includes(query));
-  const items = result.map(entry => `<li data-tagclass="tag--${dataTarget}" data-recipesids="${entry[1].join(' ')}">${entry[0]}</li>`);
-  items.forEach(item => resultsContainer.insertAdjacentHTML('beforeend', item));
+function showDropdownsData(dataTarget, resultsContainer, query) {
+  // Une recherche a déjà été effectué dans la barre de recherche principale
+  if (!query && tempRecipesState.length !== recipesState.length) {
+    const items = data[dataTarget].map(entry => {
+      return `
+        <li data-tagclass="tag--${dataTarget}"
+            data-recipesids="${entry[1].join(' ')}">${entry[0]}</li>`
+    });
+    // items.forEach(item => resultsContainer.insertAdjacentHTML('beforeend', item));
+    resultsContainer.innerHTML = items.join('\r\n');
+    tempResultItems = items.join('\r\n');
+  } else { // Aucune recherche dans la barre principale
+    //console.log(dataTarget, resultsContainer, query);
+    const results = data[dataTarget]
+      .filter(item => item[0].includes(query))
+      .map(entry => {
+        return `
+          <li data-tagclass="tag--${dataTarget}"
+              data-recipesids="${entry[1].join(' ')}">${entry[0]}</li>`
+      }).join('\r\n');
+    //console.log('Result is ', results);
+    resultsContainer.innerHTML = results;
+  }
 }
 
 function handleDropdownQuery(e) {
-  const query = e.target.value.toLowerCase();
   const dataTarget = e.target.id;
   const resultsContainer = dropdownsContainer.querySelector(`[data-for="${dataTarget}"]`)
+  const query = e.target.value.toLowerCase();
   if (query.length >= 3) {
-    filterDropdownsData(query, dataTarget, resultsContainer);
+    showDropdownsData(dataTarget, resultsContainer, query);
   }
   if (e.key === 'Backspace' && query.length >= 3) {
-    filterDropdownsData(query, dataTarget, resultsContainer);
+    showDropdownsData(dataTarget, resultsContainer, query);
   }
-  if (e.key === 'Backspace' && (!query.length || query.length < 3)) {
-    resultsContainer.innerHTML = '';
+  if (!query.length || query.length < 3) {
+    //onsole.log('Query < 3 ou undefined')
+    tempResultItems ? resultsContainer.innerHTML = tempResultItems : resultsContainer.innerHTML = '';
   }
 }
 
