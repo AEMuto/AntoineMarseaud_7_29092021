@@ -1,11 +1,14 @@
 import { recipes } from '../public/data/recipes.js';
 import Recipe from './components/Recipe.js';
+import Tag from './components/Tag.js';
 
 // Instancier les Recettes ************************************************************************
 
 const gallery = document.querySelector('.gallery');
+const tagsContainer = document.querySelector('.search__selected-tags');
 
 const recipesState = [];
+const tagsState = [];
 
 recipes.forEach(recipe => recipesState.push(new Recipe(recipe)));
 
@@ -93,14 +96,14 @@ function makeArrayFromKeyInRecipes(key) {
 // Mise à jour de l'état **************************************************************************
 
 function resetState() {
-  console.log('Reset State')
   if (tempRecipesState.length === recipesState.length) { return }
   tempRecipesState = recipesState;
   document.dispatchEvent(new CustomEvent('stateChanged'));
 }
 
 function updateRecipesState() {
-  console.log('Update State')
+  console.log('State updated');
+  console.log(tagsState);
   if(!tempRecipesState.length) {
     gallery.innerHTML = `
     <div class="gallery__empty">
@@ -115,7 +118,6 @@ function updateRecipesState() {
   data.ingredients = makeArrayFromKeyInRecipes('ingredients');
   data.appliances = makeArrayFromKeyInRecipes('appliances');
   data.ustensils = makeArrayFromKeyInRecipes('ustensils');
-  console.log(data.recipes);
 }
 
 document.addEventListener('stateChanged', updateRecipesState);
@@ -149,7 +151,6 @@ function handleRecipeSearch(e) {
 recipeSearchbar.addEventListener('keyup', handleRecipeSearch);
 
 // Ouverture-Fermeture des dropdowns **************************************************************
-const tagsContainer = document.querySelector('.search__selected-tags');
 const dropdowns = Array.from(document.querySelectorAll('.dropdown'));
 let currentDropdown;
 
@@ -161,18 +162,6 @@ function outsideClick(e) {
     document.removeEventListener('click', outsideClick);
   }
   document.removeEventListener('click', outsideClick);
-}
-
-function insertTag(value, classType, recipesIds) {
-  const template = `
-  <span class="tag ${classType}" data-recipesids="${recipesIds}">
-    <span class="tag__text">${value}</span>
-    <img class="tag__icon" src="public/icons/delete-white.svg" alt="">
-  </span>`;
-  //Insertion du tag dans le container
-  tagsContainer.insertAdjacentHTML('beforeend', template);
-
-  //TODO: Filtrer les résultats après insertion d'un tag
 }
 
 function handleDropdownClick(e) {
@@ -189,13 +178,17 @@ function handleDropdownClick(e) {
     setTimeout(() => { document.addEventListener('click', outsideClick); }, 10)
   }
   // Click sur un des résultat
-  if (e.target.dataset.tagclass) {
-    const classType = e.target.dataset.tagclass;
-    const recipesIds = e.target.dataset.recipesids;
+  if (e.target.dataset.category) { // Instanciation d'un nouveau tag et MàJ de l'état
+    console.log('Result clicked')
+    const category = e.target.dataset.category;
+    const recipesIds = e.target.dataset.recipesids
+      .split(' ')
+      .map(id => parseInt(id, 10));
+    console.log(recipesIds);
     const value = e.target.innerText;
-    insertTag(value, classType, recipesIds);
     e.target.style.display = 'none';
-    console.log(e.target.parentElement.querySelectorAll('li'))
+    tagsState.push(new Tag(value, category, recipesIds));
+    document.dispatchEvent(new CustomEvent('stateChanged'));
   }
   // Pas de menu déroulant sélectionné auparavant
   currentDropdown = e.currentTarget;
@@ -218,7 +211,7 @@ function showDropdownsData(dataTarget, resultsContainer, query) {
   if (!query && tempRecipesState.length !== recipesState.length) {
     const items = data[dataTarget].map(entry => {
       return `
-        <li data-tagclass="tag--${dataTarget}"
+        <li data-category="${dataTarget}"
             data-recipesids="${entry[1].join(' ')}">${entry[0]}</li>`
     });
     // items.forEach(item => resultsContainer.insertAdjacentHTML('beforeend', item));
@@ -230,7 +223,7 @@ function showDropdownsData(dataTarget, resultsContainer, query) {
       .filter(item => item[0].includes(query))
       .map(entry => {
         return `
-          <li data-tagclass="tag--${dataTarget}"
+          <li data-category="${dataTarget}"
               data-recipesids="${entry[1].join(' ')}">${entry[0]}</li>`
       }).join('\r\n');
     //console.log('Result is ', results);
