@@ -18,19 +18,18 @@ recipesState.forEach(instance => gallery.insertAdjacentHTML('beforeend', instanc
 
 let tempRecipesState = recipesState;
 let data = {
-  recipes: makeArrayFromKeyInRecipes('recipes'),
-  ingredients: makeArrayFromKeyInRecipes('ingredients'),
-  appliances: makeArrayFromKeyInRecipes('appliances'),
-  ustensils: makeArrayFromKeyInRecipes('ustensils'),
+  recipes: makeData('recipes'),
+  ingredients: makeData('ingredients'),
+  appliances: makeData('appliances'),
+  ustensils: makeData('ustensils'),
 }
-
 //console.log(data.recipes);
-//console.log(data.ingredients);
+console.log(data.ingredients);
 //console.log(data.appliances;
 //console.log(data.ustensils);
 
-function makeArrayFromKeyInRecipes(key) {
-  switch (key) {
+function makeData(type) {
+  switch (type) {
     case 'recipes':
       return tempRecipesState
         .map(recipe => {
@@ -42,17 +41,11 @@ function makeArrayFromKeyInRecipes(key) {
         })
     case 'ingredients':
       const ingredientsResult = tempRecipesState
-        .map(recipe => recipe.ingredients.map(ingredient => {
-          return { name: ingredient.ingredient.toLowerCase(), id: recipe.id};
-        }))
-        .flat()
-        .reduce((acc, ingredient) => {
-          const existingIngredient = acc[ingredient.name];
-          if (existingIngredient) {
-            existingIngredient.push(ingredient.id);
-          } else {
-            acc[ingredient.name] = [ingredient.id];
-          }
+        .reduce((acc, { ingredients, id }) => {
+          ingredients.forEach(ingredient => {
+            let key = ingredient.ingredient.toLowerCase();
+            !acc[key] ? acc[key] = [id] : acc[key].push(id);
+          })
           return acc;
         }, {});
       return Object.entries(ingredientsResult);
@@ -114,10 +107,10 @@ function updateRecipesState() {
   }
   gallery.innerHTML = '';
   tempRecipesState.forEach(instance => gallery.insertAdjacentHTML('beforeend', instance.getRecipeCardTemplate()));
-  data.recipes = makeArrayFromKeyInRecipes('recipes');
-  data.ingredients = makeArrayFromKeyInRecipes('ingredients');
-  data.appliances = makeArrayFromKeyInRecipes('appliances');
-  data.ustensils = makeArrayFromKeyInRecipes('ustensils');
+  data.recipes = makeData('recipes');
+  data.ingredients = makeData('ingredients');
+  data.appliances = makeData('appliances');
+  data.ustensils = makeData('ustensils');
 }
 
 document.addEventListener('stateChanged', updateRecipesState);
