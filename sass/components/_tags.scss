@@ -2,6 +2,7 @@
 @use '../utils/mixins' as *;
 
 .tag {
+  position: relative;
   font-size: .875rem;
   font-weight: 700;
   color: $white;
@@ -16,20 +17,32 @@
     flex: 1;
   }
   &__icon {
+    cursor: pointer;
     margin-left: .5rem;
     align-self: flex-end;
   }
-
 }
 
 .tag.tag--ingredients {
   background: $bg-blue;
 }
 
+.tag.tag--ingredients .tag__icon:hover {
+  fill: complement($bg-blue);
+}
+
 .tag.tag--appliances {
   background: $bg-green;
 }
 
+.tag.tag--appliances .tag__icon:hover {
+  fill: complement($bg-green);
+}
+
 .tag.tag--ustensils {
   background: $bg-orange;
+}
+
+.tag.tag--ustensils .tag__icon:hover {
+  fill: complement($bg-orange);
 }
