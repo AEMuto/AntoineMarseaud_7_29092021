@@ -3,16 +3,19 @@ import Recipe from './components/Recipe.js';
 import Tag from './components/Tag.js';
 import Data from './components/Data.js';
 
-// Instancier les Recettes ************************************************************************
+// Instancier les Recettes et les insérer dans le DOM *********************************************
 
 const gallery = document.querySelector('.gallery');
+const noResults = gallery.querySelector('.gallery__empty'); // Texte à montrer si aucun résultats
 
 const recipesState = [];
 let tagsState = [];
 
 recipes.forEach(recipe => recipesState.push(new Recipe(recipe)));
-
 recipesState.forEach(instance => gallery.insertAdjacentHTML('beforeend', instance.getRecipeCardTemplate()));
+
+// Variable post-insertion
+const currentRecipes = Array.from(gallery.querySelectorAll('.card.card--recipe'));
 
 // Création des "glossaires" **********************************************************************
 
@@ -32,20 +35,18 @@ function resetState() {
 }
 
 function updateRecipesState() {
-
+  tempResultItems = ''; // On reset les résultats de recherche du dropdown
   // Update de l'état uniquement si des instances existent dans notre état
   if(!tempRecipesState.length) {
     // La recherche n'a retourné aucun résultat
-    gallery.innerHTML = `
-    <div class="gallery__empty">
-      <p>Aucune recette ne correspond à votre critère… <br>
-      Vous pouvez chercher « tarte aux pommes », « poisson », etc...</p>
-    </div>`;
+    currentRecipes.forEach(recipe => recipe.classList.add('hidden'));
+    noResults.classList.add('reveal');
     // Assigner à data une nouvelle valeur (vide, mais permet d'éviter les erreurs)
     data = new Data(tempRecipesState);
     return;
   }
-  // TODO: Vérifier tagState, si length !== 0 alors mettre à jour tempRecipeState
+  noResults.classList.contains('reveal') ? noResults.classList.remove('reveal') : '';
+  // Vérifier tagState, si length !== 0 alors mettre à jour tempRecipeState
   if (tagsState.length) {
     // Inspecter uniquement les ids du dernier tag inséré
     const ids = tagsState[tagsState.length - 1].recipesIds;
@@ -56,10 +57,18 @@ function updateRecipesState() {
   if (!tagsState.length && !recipeSearchbar.value) { //TODO: Enlever ce duplicata de reset state, trouver une solution plus élégante
     tempRecipesState = recipesState;
   }
-  // Suppression de l'HTML dans la gallerie
-  gallery.innerHTML = '';
-  // Insertion des recettes restantes dans la gallerie
-  tempRecipesState.forEach(instance => gallery.insertAdjacentHTML('beforeend', instance.getRecipeCardTemplate()));
+  // Cacher les recipes du dom en fonction de celle existante dans notre état
+  const currentIds = tempRecipesState.reduce((acc, { id }) => {
+    acc.indexOf(id) < 0 ? acc.push(id) : '';
+    return acc;
+  }, []);
+  currentRecipes.forEach(recipe => {
+    if (currentIds.indexOf(parseInt(recipe.dataset.id, 10)) < 0) {
+      recipe.classList.add('hidden');
+    } else {
+      recipe.classList.contains('hidden') ? recipe.classList.remove('hidden') : '';
+    }
+  });
   // Recalculer nos données à partir des recettes restantes
   /* TODO: Passer tagState en argument pour enlever les résultats correspondant à un tag
   *   exemple: lait de coco existe en tag, le supprimer du data ?*/
@@ -102,9 +111,9 @@ const tagsContainer = document.querySelector('.search__selected-tags');
 function removeTag(value, domTag) {
   // Lorsque je click sur le tag
   // restaurer l'état qu'il contient
-  const currentTag = tagsState.filter(tag => {
+  const currentTag = tagsState.find(tag => {
     return tag.value === value;
-  })[0];
+  });
   tempRecipesState = currentTag.previousState;
   // Le supprimer de tagstate
   tagsState = tagsState.filter(tag => {
@@ -120,15 +129,13 @@ function insertTag(value, category, recipesIds) {
   tagsState.push(new Tag(value, category, recipesIds));
   tagsContainer.insertAdjacentHTML('beforeend', tagsState[tagsState.length - 1].getTagTemplate());
   tagsState[tagsState.length - 1].previousState = tempRecipesState;
-  console.log(tagsState);
   document.dispatchEvent(new CustomEvent('stateChanged'));
 }
 
 function handleTagClick(e) {
   if (e.target.dataset.behaviour === 'removeTag') {
-    console.log('removing Tag')
     const value = e.target.dataset.value;
-    const domTag = e.target.parentElement;
+    const domTag = e.target.closest('.tag');
     removeTag(value, domTag);
   }
 }
@@ -192,26 +199,23 @@ const dropdownsSearchbar = document.querySelectorAll('.dropdown__searchbar input
 let tempResultItems;
 
 function showDropdownsData(category, resultsContainer, query) {
-  // Une recherche a déjà été effectué dans la barre de recherche principale
-  if (!query && tempRecipesState.length !== recipesState.length && tempRecipesState.length) {
+  // Champs de recherche du dropdown vide
+  if (!query && (recipeSearchbar.value || tempRecipesState.length !== recipesState.length)) {
     const items = data[category].map(entry => {
       return `
         <li data-category="${category}"
             data-recipesids="${entry[1].join(' ')}">${entry[0]}</li>`
     });
-    // items.forEach(item => resultsContainer.insertAdjacentHTML('beforeend', item));
     resultsContainer.innerHTML = items.join('\r\n');
     tempResultItems = items.join('\r\n');
-  } else { // Aucune recherche dans la barre principale
-    const results = data[category]
+  } else { // Une valeur a été rentré dans la barre de recherche du dropdown
+    resultsContainer.innerHTML = data[category]
       .filter(item => item[0].includes(query))
       .map(entry => {
         return `
           <li data-category="${category}"
               data-recipesids="${entry[1].join(' ')}">${entry[0]}</li>`
       }).join('\r\n');
-    //console.log('Result is ', results);
-    resultsContainer.innerHTML = results;
   }
 }
 

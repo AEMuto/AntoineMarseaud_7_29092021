@@ -11,7 +11,7 @@ function Recipe({ id, name, servings, ingredients, time, description, appliance,
 
 Recipe.prototype.getRecipeCardTemplate = function () {
   return `
-  <div class="card card--recipe">
+  <div class="card card--recipe" data-id="${this.id}">
     <div class="card__img"></div>
     <div class="card__infos">
       <div class="card__infos__header">

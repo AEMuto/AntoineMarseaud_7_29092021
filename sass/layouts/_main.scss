@@ -58,7 +58,7 @@
   }
   &__empty {
     position: absolute;
-    display: flex;
+    display: none;
     inset: 0;
     p {
       margin: auto;
@@ -68,4 +68,8 @@
       text-shadow: 1px 1px 3px rgba(0,0,0,.25);
     }
   }
+}
+
+.gallery__empty.reveal {
+  display: flex;
 }
