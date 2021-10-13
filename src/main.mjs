@@ -2,6 +2,7 @@ import { recipes } from '../public/data/recipes.js';
 import Recipe from './components/Recipe.js';
 import Tag from './components/Tag.js';
 import Data from './components/Data.js';
+import debounce from './utils/helpers.js';
 
 // Instancier les Recettes et les insérer dans le DOM *********************************************
 
@@ -80,7 +81,8 @@ document.addEventListener('stateChanged', updateRecipesState);
 // Gestion Barre de recherche principale **********************************************************
 const recipeSearchbar = document.querySelector('#recipes');
 
-function filterRecipesData(query) {
+function showGalleryResults(query) {
+  console.log('Filtering recipes');
   const result = data.recipes.filter(recipe => recipe.text.includes(query));
   const ids = result.map(recipe => recipe.id);
   tempRecipesState = recipesState.filter(recipeInstance => {
@@ -89,21 +91,21 @@ function filterRecipesData(query) {
   document.dispatchEvent(new CustomEvent('stateChanged'));
 }
 
-function handleRecipeSearch(e) {
+const handleSearchbarQuery = debounce(function(e) {
   const query = e.target.value.toLowerCase();
   if (query.length >= 3) {
-    filterRecipesData(query);
+    showGalleryResults(query);
   }
   if (e.key === 'Backspace' && query.length >= 3) {
     resetState();
-    filterRecipesData(query);
+    showGalleryResults(query);
   }
   if (!query.length || query.length < 3) {
     resetState();
   }
-}
+});
 
-recipeSearchbar.addEventListener('keyup', handleRecipeSearch);
+recipeSearchbar.addEventListener('keyup', handleSearchbarQuery);
 
 // Gestion des tags *******************************************************************************
 const tagsContainer = document.querySelector('.search__selected-tags');
@@ -161,17 +163,7 @@ function handleDropdownClick(e) {
   const resultsContainer = e.currentTarget.querySelector('ul');
   const dataTarget = resultsContainer.dataset.for;
   // Si aucune valeur dans l'input appel de la fonction permettant d'afficher les tags dispo, sinon ne rien faire
-  !e.currentTarget.querySelector('input').value ? showDropdownsData(dataTarget, resultsContainer) : '';
-  // Si un menu déroulant a déjà été sélectionné
-  if (currentDropdown) {
-    console.log('Current dropdown: true')
-    currentDropdown.classList.remove('open');
-    currentDropdown = e.currentTarget;
-    currentDropdown.classList.add('open');
-    currentDropdown.querySelector('input').focus();
-    setTimeout(() => { document.addEventListener('click', outsideClick); }, 10);
-    return;
-  }
+  !e.currentTarget.querySelector('input').value ? showDropdownsResults(dataTarget, resultsContainer) : '';
   // Si click sur un des résultat (futur tag, juste des <li> dans notre resultsContainer pour l'instant)
   if (e.target.dataset.category) { // Instanciation d'un nouveau tag et MàJ de l'état
     const category = e.target.dataset.category;
@@ -183,6 +175,16 @@ function handleDropdownClick(e) {
     insertTag(value, category, recipesIds);
     currentDropdown.querySelector('input').value = '';
     currentDropdown.classList.remove('open');
+    return;
+  }
+  // Si un menu déroulant a déjà été sélectionné
+  if (currentDropdown) {
+    console.log('Current dropdown: true')
+    currentDropdown.classList.remove('open');
+    currentDropdown = e.currentTarget;
+    currentDropdown.classList.add('open');
+    currentDropdown.querySelector('input').focus();
+    setTimeout(() => { document.addEventListener('click', outsideClick); }, 10);
     return;
   }
   // Pas de menu déroulant sélectionné auparavant
@@ -202,7 +204,7 @@ const dropdownsContainer = document.querySelector('.search__dropdowns');
 const dropdownsSearchbar = document.querySelectorAll('.dropdown__searchbar input');
 let tempResultItems;
 
-function showDropdownsData(category, resultsContainer, query) {
+function showDropdownsResults(category, resultsContainer, query) {
   // Champs de recherche du dropdown vide
   if (!query && (recipeSearchbar.value || tempRecipesState.length !== recipesState.length)) {
     const items = data[category].map(entry => {
@@ -223,20 +225,20 @@ function showDropdownsData(category, resultsContainer, query) {
   }
 }
 
-function handleDropdownQuery(e) {
+const handleDropdownQuery = debounce(function(e) {
   const category = e.target.id;
   const resultsContainer = dropdownsContainer.querySelector(`[data-for="${category}"]`)
   const query = e.target.value.toLowerCase();
   if (query.length >= 3) {
-    showDropdownsData(category, resultsContainer, query);
+    showDropdownsResults(category, resultsContainer, query);
   }
   if (e.key === 'Backspace' && query.length >= 3) {
-    showDropdownsData(category, resultsContainer, query);
+    showDropdownsResults(category, resultsContainer, query);
   }
   if (!query.length || query.length < 3) {
     tempResultItems ? resultsContainer.innerHTML = tempResultItems : resultsContainer.innerHTML = '';
   }
-}
+});
 
 dropdownsSearchbar.forEach(dropdownInput => {
   dropdownInput.addEventListener('keyup', handleDropdownQuery);
