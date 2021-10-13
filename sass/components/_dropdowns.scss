@@ -31,7 +31,6 @@
     top: 28px;
     right: 0;
     margin-right: 1rem;
-
   }
   &__items {
     display: none;
@@ -40,7 +39,10 @@
     gap: 1rem;
     grid-template-columns: repeat(3, 1fr);
   }
+}
 
+.dropdown__arrow--up {
+  display: none;
 }
 
 .dropdown.dropdown--ingredients {
@@ -64,5 +66,11 @@
   }
   .dropdown__items {
     display: grid;
+  }
+  .dropdown__arrow--down {
+    display: none;
+  }
+  .dropdown__arrow--up {
+    display: block;
   }
 }

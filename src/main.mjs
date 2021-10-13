@@ -133,6 +133,7 @@ function insertTag(value, category, recipesIds) {
 }
 
 function handleTagClick(e) {
+  console.log(e.target);
   if (e.target.dataset.behaviour === 'removeTag') {
     const value = e.target.dataset.value;
     const domTag = e.target.closest('.tag');
@@ -147,7 +148,7 @@ const dropdowns = Array.from(document.querySelectorAll('.dropdown'));
 let currentDropdown;
 
 function outsideClick(e) {
-  const selector = currentDropdown.classList[1];
+  const selector = currentDropdown.classList[1]; // Sélectionne la catégorie du dropdown
   const isOutside = !e.target.closest(`.${selector}`);
   if (isOutside) {
     currentDropdown.classList.remove('open');
@@ -163,11 +164,13 @@ function handleDropdownClick(e) {
   !e.currentTarget.querySelector('input').value ? showDropdownsData(dataTarget, resultsContainer) : '';
   // Si un menu déroulant a déjà été sélectionné
   if (currentDropdown) {
+    console.log('Current dropdown: true')
     currentDropdown.classList.remove('open');
     currentDropdown = e.currentTarget;
     currentDropdown.classList.add('open');
     currentDropdown.querySelector('input').focus();
-    setTimeout(() => { document.addEventListener('click', outsideClick); }, 10)
+    setTimeout(() => { document.addEventListener('click', outsideClick); }, 10);
+    return;
   }
   // Si click sur un des résultat (futur tag, juste des <li> dans notre resultsContainer pour l'instant)
   if (e.target.dataset.category) { // Instanciation d'un nouveau tag et MàJ de l'état
@@ -183,10 +186,11 @@ function handleDropdownClick(e) {
     return;
   }
   // Pas de menu déroulant sélectionné auparavant
+  console.log('no previous dropdown')
   currentDropdown = e.currentTarget;
   currentDropdown.classList.add('open');
   currentDropdown.querySelector('input').focus();
-  setTimeout(() => { document.addEventListener('click', outsideClick); }, 10)
+  setTimeout(() => { document.addEventListener('click', outsideClick); }, 10);
 }
 
 dropdowns.forEach(dropdown => {
