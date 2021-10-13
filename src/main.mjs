@@ -2,7 +2,7 @@ import { recipes } from '../public/data/recipes.js';
 import Recipe from './components/Recipe.js';
 import Tag from './components/Tag.js';
 import Data from './components/Data.js';
-import debounce from './utils/helpers.js';
+import { debounce, keepDuplicate } from './utils/helpers.js';
 
 // Instancier les Recettes et les insérer dans le DOM *********************************************
 
@@ -22,6 +22,8 @@ const currentRecipes = Array.from(gallery.querySelectorAll('.card.card--recipe')
 
 let tempRecipesState = recipesState;
 let data = new Data(tempRecipesState);
+const tagsData = data.makeTagsData();
+
 //console.log(data.recipes);
 //console.log(data.ingredients);
 //console.log(data.appliances);
@@ -35,6 +37,7 @@ function resetState() {
   document.dispatchEvent(new CustomEvent('stateChanged'));
 }
 
+//TODO: corriger cas de figure où recherche effectué puis tag, puis !tag, besoin de retourner état initial de la recherche
 function updateRecipesState() {
   tempResultItems = ''; // On reset les résultats de recherche du dropdown
   // Update de l'état uniquement si des instances existent dans notre état
@@ -49,16 +52,17 @@ function updateRecipesState() {
   noResults.classList.contains('reveal') ? noResults.classList.remove('reveal') : '';
   // Vérifier tagState, si length !== 0 alors mettre à jour tempRecipeState
   if (tagsState.length) {
-    // Inspecter uniquement les ids du dernier tag inséré
-    const ids = tagsState[tagsState.length - 1].recipesIds;
-    tempRecipesState = tempRecipesState.filter(recipeInstance => {
-      return ids.indexOf(recipeInstance.id) > -1;
-    });
+    console.table(tagsState);
+    // Récupération des ids qui vont nous permettre de filtrer les recettes depuis tagState
+    const ids = keepDuplicate(tagsState);
+    recipeSearchbar.value
+      ? tempRecipesState = tempRecipesState.filter(recipeInstance => ids.indexOf(recipeInstance.id) > -1)
+      : tempRecipesState = recipesState.filter(recipeInstance => ids.indexOf(recipeInstance.id) > -1);
   }
   if (!tagsState.length && !recipeSearchbar.value) { //TODO: Enlever ce duplicata de reset state, trouver une solution plus élégante
     tempRecipesState = recipesState;
   }
-  // Cacher les recipes du dom en fonction de celle existante dans notre état
+  // Cacher les recipes du dom en fonction de celles existante dans notre état
   const currentIds = tempRecipesState.reduce((acc, { id }) => {
     acc.indexOf(id) < 0 ? acc.push(id) : '';
     return acc;
@@ -71,9 +75,13 @@ function updateRecipesState() {
     }
   });
   // Recalculer nos données à partir des recettes restantes
-  /* TODO: Passer tagState en argument pour enlever les résultats correspondant à un tag
-  *   exemple: lait de coco existe en tag, le supprimer du data ?*/
-  data = new Data(tempRecipesState);
+  // On passe tagState en argument pour enlever les résultats correspondant à un tag
+  // exemple: lait de coco existe en tag, le supprimer du data
+  const comparator = tagsState.reduce((acc, {value, category}) => {
+    !acc[category] ? acc[category] = [value] : acc[category].push(value);
+    return acc;
+  }, {})
+  data = new Data(tempRecipesState, comparator);
 }
 
 document.addEventListener('stateChanged', updateRecipesState);
@@ -82,7 +90,6 @@ document.addEventListener('stateChanged', updateRecipesState);
 const recipeSearchbar = document.querySelector('#recipes');
 
 function showGalleryResults(query) {
-  console.log('Filtering recipes');
   const result = data.recipes.filter(recipe => recipe.text.includes(query));
   const ids = result.map(recipe => recipe.id);
   tempRecipesState = recipesState.filter(recipeInstance => {
@@ -111,31 +118,18 @@ recipeSearchbar.addEventListener('keyup', handleSearchbarQuery);
 const tagsContainer = document.querySelector('.search__selected-tags');
 
 function removeTag(value, domTag) {
-  // Lorsque je click sur le tag
-  // restaurer l'état qu'il contient
-  const currentTag = tagsState.find(tag => {
-    return tag.value === value;
-  });
-  tempRecipesState = currentTag.previousState;
-  // Le supprimer de tagstate
-  tagsState = tagsState.filter(tag => {
-    return tag.value !== value;
-  });
-  // Le supprimer du Dom
-  domTag.parentElement.removeChild(domTag);
-  // custom event pour màj l'état
-  document.dispatchEvent(new CustomEvent('stateChanged'));
+  tagsState = tagsState.filter(tag => tag.value !== value); // Le supprimer de tagstate
+  domTag.parentElement.removeChild(domTag); // Le supprimer du Dom
+  document.dispatchEvent(new CustomEvent('stateChanged')); // custom event pour màj l'état
 }
 
 function insertTag(value, category, recipesIds) {
   tagsState.push(new Tag(value, category, recipesIds));
   tagsContainer.insertAdjacentHTML('beforeend', tagsState[tagsState.length - 1].getTagTemplate());
-  tagsState[tagsState.length - 1].previousState = tempRecipesState;
   document.dispatchEvent(new CustomEvent('stateChanged'));
 }
 
 function handleTagClick(e) {
-  console.log(e.target);
   if (e.target.dataset.behaviour === 'removeTag') {
     const value = e.target.dataset.value;
     const domTag = e.target.closest('.tag');
@@ -167,10 +161,8 @@ function handleDropdownClick(e) {
   // Si click sur un des résultat (futur tag, juste des <li> dans notre resultsContainer pour l'instant)
   if (e.target.dataset.category) { // Instanciation d'un nouveau tag et MàJ de l'état
     const category = e.target.dataset.category;
-    const recipesIds = e.target.dataset.recipesids
-      .split(' ')
-      .map(id => parseInt(id, 10));
     const value = e.target.innerText;
+    const recipesIds = tagsData.get(value); // Récupérer les ids depuis la map de tags
     e.target.style.display = 'none';
     insertTag(value, category, recipesIds);
     currentDropdown.querySelector('input').value = '';
@@ -179,7 +171,6 @@ function handleDropdownClick(e) {
   }
   // Si un menu déroulant a déjà été sélectionné
   if (currentDropdown) {
-    console.log('Current dropdown: true')
     currentDropdown.classList.remove('open');
     currentDropdown = e.currentTarget;
     currentDropdown.classList.add('open');
@@ -188,7 +179,6 @@ function handleDropdownClick(e) {
     return;
   }
   // Pas de menu déroulant sélectionné auparavant
-  console.log('no previous dropdown')
   currentDropdown = e.currentTarget;
   currentDropdown.classList.add('open');
   currentDropdown.querySelector('input').focus();
@@ -207,21 +197,14 @@ let tempResultItems;
 function showDropdownsResults(category, resultsContainer, query) {
   // Champs de recherche du dropdown vide
   if (!query && (recipeSearchbar.value || tempRecipesState.length !== recipesState.length)) {
-    const items = data[category].map(entry => {
-      return `
-        <li data-category="${category}"
-            data-recipesids="${entry[1].join(' ')}">${entry[0]}</li>`
-    });
-    resultsContainer.innerHTML = items.join('\r\n');
-    tempResultItems = items.join('\r\n');
+    const items = data[category].map(entry => `<li data-category="${category}">${entry[0]}</li>`).join('');
+    tempResultItems = items;
+    resultsContainer.innerHTML = items;
   } else { // Une valeur a été rentré dans la barre de recherche du dropdown
     resultsContainer.innerHTML = data[category]
       .filter(item => item[0].includes(query))
-      .map(entry => {
-        return `
-          <li data-category="${category}"
-              data-recipesids="${entry[1].join(' ')}">${entry[0]}</li>`
-      }).join('\r\n');
+      .map(entry => `<li data-category="${category}">${entry[0]}</li>`)
+      .join('');
   }
 }
 

@@ -2,7 +2,6 @@ function Tag(value, category, recipesIds) {
   this.value = value;
   this.category = category;
   this.recipesIds = recipesIds;
-  this.previousState = '';
 }
 
 Tag.prototype.getTagTemplate = function () {

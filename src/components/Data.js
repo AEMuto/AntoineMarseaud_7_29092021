@@ -8,41 +8,51 @@ function makeDataRecipes(target) {
   })
 }
 
-function makeDataIngredients(target) {
+function makeDataIngredients(target, comparator = []) {
   const ingredientsResult = target
     .reduce((acc, { ingredients, id }) => {
       ingredients.forEach(ingredient => {
         let key = ingredient.ingredient.toLowerCase();
-        !acc[key] ? acc[key] = [id] : acc[key].push(id);
+        if (comparator.indexOf(key) < 0)
+          !acc[key] ? acc[key] = [id] : acc[key].push(id);
       })
       return acc;
     }, {});
   return Object.entries(ingredientsResult);
 }
 
-function makeDataAppliances(target) {
+function makeDataAppliances(target, comparator = []) {
   const appliancesResult = target
     .reduce((acc, { appliance, id }) => {
-      !acc[appliance] ? acc[appliance] = [id] : acc[appliance].push(id);
+      if (comparator.indexOf(appliance) < 0)
+        !acc[appliance] ? acc[appliance] = [id] : acc[appliance].push(id);
       return acc;
     }, {});
   return Object.entries(appliancesResult);
 }
 
-function makeDataUstensils(target) {
+function makeDataUstensils(target, comparator = []) {
   const ustensilsResult = target
     .reduce((acc, { ustensils, id }) => {
       ustensils.forEach(ustensil => {
-        !acc[ustensil] ? acc[ustensil] = [id] : acc[ustensil].push(id);
+        if (comparator.indexOf(ustensil) < 0)
+          !acc[ustensil] ? acc[ustensil] = [id] : acc[ustensil].push(id);
       })
       return acc;
     }, {});
   return Object.entries(ustensilsResult);
 }
 
-export default function Data(target) {
+export default function Data(target, comparator) {
   this.recipes = makeDataRecipes(target);
-  this.ingredients = makeDataIngredients(target);
-  this.appliances = makeDataAppliances(target);
-  this.ustensils = makeDataUstensils(target);
+  this.ingredients = makeDataIngredients(target, comparator?.ingredients);
+  this.appliances = makeDataAppliances(target, comparator?.appliances);
+  this.ustensils = makeDataUstensils(target, comparator?.ustensils);
+}
+
+Data.prototype.makeTagsData = function() {
+  const tagsData = new Map();
+  const tempArray = [...this.ingredients, ...this.appliances, ...this.ustensils];
+  tempArray.forEach(entries => tagsData.set(entries[0], entries[1]));
+  return tagsData;
 }

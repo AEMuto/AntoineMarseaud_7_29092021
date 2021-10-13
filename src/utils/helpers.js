@@ -7,7 +7,7 @@
  * @param wait
  * @returns {(function(...[*]): void)|*}
  */
-export default function debounce(func, wait = 400) {
+export function debounce(func, wait = 400) {
   let timeout;
 
   return function executedFunction(...args) {
@@ -19,4 +19,29 @@ export default function debounce(func, wait = 400) {
     clearTimeout(timeout);
     timeout = setTimeout(later, wait);
   };
+}
+
+/**
+ * Permet de garder uniquement les duplicatas présent
+ * dans TOUS les sub-array.
+ * Adapté pour fonctionner sur l'array tagState.
+ * @param array
+ * @returns {*[]}
+ */
+export function keepDuplicate(array) {
+  const results = [];
+  const minCount = array.length;
+  const counts = array.reduce((acc, {recipesIds}) => {
+    recipesIds.forEach(id => {
+      !acc[id] ? acc[id] = 1 : acc[id]++;
+    })
+    return acc;
+  }, {});
+  console.log(counts);
+  for (let key in counts) {
+    if (counts[key] === minCount) {
+      results.push(+key);
+    }
+  }
+  return results;
 }
