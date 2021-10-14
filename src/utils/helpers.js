@@ -37,7 +37,6 @@ export function keepDuplicate(array) {
     })
     return acc;
   }, {});
-  console.log(counts);
   for (let key in counts) {
     if (counts[key] === minCount) {
       results.push(+key);
