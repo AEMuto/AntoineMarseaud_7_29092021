@@ -12,8 +12,11 @@ const noResults = gallery.querySelector('.gallery__empty'); // Texte à montrer 
 const recipesState = [];
 let tagsState = [];
 
-recipes.forEach(recipe => recipesState.push(new Recipe(recipe)));
-recipesState.forEach(instance => gallery.insertAdjacentHTML('beforeend', instance.getRecipeCardTemplate()));
+recipes.forEach(recipe => {
+  const instance = new Recipe(recipe);
+  recipesState.push(instance);
+  gallery.insertAdjacentHTML('beforeend', instance.getRecipeCardTemplate());
+});
 
 // Variable post-insertion
 const galleryCards = Array.from(gallery.querySelectorAll('.card.card--recipe'));
