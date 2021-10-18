@@ -23,6 +23,7 @@ let searchState = recipesState;
 
 // Création des "glossaires" **********************************************************************
 let data = new Data(recipesState);
+console.log(data.glossary);
 const originalData = data;
 
 // Mise à jour de l'état **************************************************************************

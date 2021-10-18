@@ -45,11 +45,11 @@ export function keepDuplicate(array) {
   return results;
 }
 
-function sort(arr, value= 0) {
+export function sort(arr, value= 0) {
   const collator = new Intl.Collator('fr');
   return [...arr].sort((a, b) => collator.compare(a[value], b[value]));
 }
 
-function removeDuplicate(arr) {
+export function removeDuplicate(arr) {
   return [...new Set(arr)];
 }
