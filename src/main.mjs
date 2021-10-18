@@ -5,7 +5,6 @@ import Data from './components/Data.js';
 import { debounce, keepDuplicate } from './utils/helpers.js';
 
 // Instancier les Recettes et les insérer dans le DOM *********************************************
-
 const gallery = document.querySelector('.gallery');
 const noResults = gallery.querySelector('.gallery__empty'); // Texte à montrer si aucun résultats
 
@@ -23,32 +22,23 @@ const galleryCards = Array.from(gallery.querySelectorAll('.card.card--recipe'));
 let searchState = recipesState;
 
 // Création des "glossaires" **********************************************************************
-
 let data = new Data(recipesState);
 const originalData = data;
-// console.log(data.ingredients);
-// console.log(data.appliances);
-// console.log(data.ustensils);
 
 // Mise à jour de l'état **************************************************************************
 function intersectStates(recipesState, searchState, tagsState) {
   if (!searchState.length && !tagsState.length) {
-    //console.log('Case 01');
     return []; }
   if (recipesState.length === searchState.length && !tagsState.length) {
-    //console.log('Case 02');
     return recipesState; }
   if (recipesState.length === searchState.length && tagsState.length) {
-    //console.log('Case 03');
     const ids = keepDuplicate(tagsState);
     return recipesState.filter(recipeInstance => ids.indexOf(recipeInstance.id) > -1);
   }
   if (recipesState.length !== searchState.length && !tagsState.length) {
-    //console.log('Case 04');
     return searchState;
   }
   if (recipesState.length !== searchState.length && tagsState.length) {
-    //console.log('Case 05');
     const ids = keepDuplicate(tagsState);
     return searchState.filter(recipeInstance => ids.indexOf(recipeInstance.id) > -1);
   }
@@ -69,19 +59,15 @@ function updateGallery() {
   noResults.classList.contains('reveal') ? noResults.classList.remove('reveal') : '';
 
   // Cacher les recipes du dom en fonction de celles existante dans notre résultat
-  //console.time('Display results');
-  const currentIds = results.reduce((acc, { id }) => {
-    acc.indexOf(id) < 0 ? acc.push(id) : '';
-    return acc;
-  }, []);
+  const currentIds = results.map(({ id }) => id);
   galleryCards.forEach(card => {
-    if (currentIds.indexOf(parseInt(card.dataset.id, 10)) < 0) {
+    if (currentIds.indexOf(+card.dataset.id) < 0) {
       card.classList.add('hidden');
     } else {
       card.classList.contains('hidden') ? card.classList.remove('hidden') : '';
     }
   });
-  //console.timeEnd('Display results');
+
   // Recalculer nos données à partir des recettes restantes
   // On passe tagState en argument pour enlever les résultats correspondant à un tag
   // exemple: lait de coco existe en tag, le supprimer du data
@@ -98,18 +84,10 @@ document.addEventListener('stateChanged', updateGallery);
 const recipeSearchbar = document.querySelector('#recipes');
 
 function recipesSearch(query, dataTarget) {
-
-  //console.time('Finding match recipes');
   const results = dataTarget
     .filter(recipe => recipe.text.includes(query))
     .map(recipe => recipe.id);
-  //console.timeEnd('Finding match recipes');
-  //console.time('Filtering match');
-  searchState = recipesState.filter(recipeInstance => {
-    return results.includes(recipeInstance.id);
-  });
-  //console.timeEnd('Filtering match');
-
+  searchState = recipesState.filter(recipeInstance => results.includes(recipeInstance.id));
   document.dispatchEvent(new CustomEvent('stateChanged'));
 }
 
@@ -135,9 +113,9 @@ recipeSearchbar.addEventListener('keyup', handleSearchbarQuery);
 const tagsContainer = document.querySelector('.search__selected-tags');
 
 function removeTag(value, domTag) {
-  tagsState = tagsState.filter(tag => tag.value !== value); // Le supprimer de tagstate
-  domTag.parentElement.removeChild(domTag); // Le supprimer du Dom
-  document.dispatchEvent(new CustomEvent('stateChanged')); // custom event pour màj l'état
+  tagsState = tagsState.filter(tag => tag.value !== value);
+  domTag.parentElement.removeChild(domTag);
+  document.dispatchEvent(new CustomEvent('stateChanged'));
 }
 
 function insertTag(value, category, recipesIds) {
@@ -176,7 +154,7 @@ function handleDropdownClick(e) {
   // Si aucune valeur dans l'input appel de la fonction permettant d'afficher les tags dispo, sinon ne rien faire
   !e.currentTarget.querySelector('input').value ? showDropdownsResults(dataTarget, resultsContainer) : '';
   // Si click sur un des résultat (futur tag, juste des <li> dans notre resultsContainer pour l'instant)
-  if (e.target.dataset.category) { // Instanciation d'un nouveau tag et MàJ de l'état
+  if (e.target.dataset.category) {
     const category = e.target.dataset.category;
     const value = e.target.innerText;
     const recipesIds = originalData[category].find(item => item[0] === value)[1];

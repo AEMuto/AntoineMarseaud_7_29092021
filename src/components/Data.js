@@ -26,11 +26,9 @@ function constructData(recipes, comparator = {ingredientsTags:[], ustensilsTags:
 }
 
 export default function Data(recipes, comparator) {
-  console.time('Construct Data')
   const result = constructData(recipes, comparator);
   this.recipes = result.recipes;
   this.ingredients = Object.entries(result.ingredients);
   this.appliances = Object.entries(result.appliances);
   this.ustensils = Object.entries(result.ustensils);
-  console.timeEnd('Construct Data')
 }
