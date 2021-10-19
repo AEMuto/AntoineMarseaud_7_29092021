@@ -1,7 +1,7 @@
 import { removeDuplicate, sort } from '../utils/helpers.js';
 
 function constructData(recipes, comparator = {ingredientsTags:[], ustensilsTags:[], appliancesTags:[]}) {
-  return recipes.reduce((acc, { id, name, ingredients, appliance, ustensils, description }) => {
+  return recipes.reduce((acc, { id, ingredients, appliance, ustensils}) => {
     ingredients.forEach(({ ingredient }) => {
       if (comparator.ingredientsTags.indexOf(ingredient.toLowerCase()) < 0) {
         !acc.ingredients[ingredient.toLowerCase()]
@@ -21,19 +21,25 @@ function constructData(recipes, comparator = {ingredientsTags:[], ustensilsTags:
         ? acc.appliances[appliance] = [id]
         : acc.appliances[appliance].push(id);
     }
-    const string = `${name} ${ingredients.map(item => item.ingredient).join(' ')} ${description}`
-    const terms = removeDuplicate(string.toLowerCase().match(/[\p{L}]{3,}/ug));
-    terms.forEach(term => {
-      !acc.glossary[term] ? acc.glossary[term] = [id] : acc.glossary[term].push(id);
-    });
     return acc;
-  }, { ingredients: {}, ustensils: {}, appliances: {}, glossary: {} });
+  }, { ingredients: {}, ustensils: {}, appliances: {} });
 }
 
-export default function Data(recipes, comparator) {
+export function Data(recipes, comparator) {
   const result = constructData(recipes, comparator);
-  this.glossary = sort(Object.entries(result.glossary));
   this.ingredients = Object.entries(result.ingredients);
   this.appliances = Object.entries(result.appliances);
   this.ustensils = Object.entries(result.ustensils);
+}
+
+export function Glossary(recipes) {
+  const results = recipes.reduce((acc, { id, name, ingredients, description }) => {
+    const string = `${name} ${ingredients.map(item => item.ingredient).join(' ')} ${description}`
+    const terms = removeDuplicate(string.toLowerCase().match(/[\p{L}]{3,}/ug));
+    terms.forEach(term => {
+      !acc[term] ? acc[term] = [id] : acc[term].push(id);
+    });
+    return acc;
+  }, {});
+  this.entries = sort(Object.entries(results));
 }

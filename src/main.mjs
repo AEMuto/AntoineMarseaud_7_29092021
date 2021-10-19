@@ -1,7 +1,7 @@
 import { recipes } from '../public/data/recipes.js';
 import Recipe from './components/Recipe.js';
 import Tag from './components/Tag.js';
-import Data from './components/Data.js';
+import { Data, Glossary  } from './components/Data.js';
 import { debounce, keepDuplicate } from './utils/helpers.js';
 
 // Instancier les Recettes et les insérer dans le DOM *********************************************
@@ -23,6 +23,7 @@ let searchState = recipesState;
 
 // Création des "glossaires" **********************************************************************
 let data = new Data(recipesState);
+const glossary = new Glossary(recipesState);
 const originalData = data;
 
 // Mise à jour de l'état **************************************************************************
@@ -95,12 +96,12 @@ function recipesSearch(query, dataTarget) {
 const handleSearchbarQuery = debounce(function(e) {
   const query = e.target.value.toLowerCase();
   if (query.length >= 3) {
-    recipesSearch(query, data.glossary);
+    recipesSearch(query, glossary.entries);
   }
   if (e.key === 'Backspace' && query.length >= 3) {
     searchState = recipesState; // Reset de searchState
     data = originalData; // Reset du data
-    recipesSearch(query, data.glossary);
+    recipesSearch(query, glossary.entries);
   }
   if (!query.length || query.length < 3) {
     searchState = recipesState;
