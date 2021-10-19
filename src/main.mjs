@@ -85,8 +85,8 @@ const recipeSearchbar = document.querySelector('#recipes');
 
 function recipesSearch(query, dataTarget) {
   const results = dataTarget
-    .filter(recipe => recipe.text.includes(query))
-    .map(recipe => recipe.id);
+    .filter(glossary => glossary.terms.includes(query))
+    .map(glossary => glossary.id);
   searchState = recipesState.filter(recipeInstance => results.includes(recipeInstance.id));
   document.dispatchEvent(new CustomEvent('stateChanged'));
 }
@@ -94,12 +94,12 @@ function recipesSearch(query, dataTarget) {
 const handleSearchbarQuery = debounce(function(e) {
   const query = e.target.value.toLowerCase();
   if (query.length >= 3) {
-    recipesSearch(query, data.recipes);
+    recipesSearch(query, data.glossaries);
   }
   if (e.key === 'Backspace' && query.length >= 3) {
     searchState = recipesState; // Reset de searchState
     data = originalData; // Reset du data
-    recipesSearch(query, data.recipes);
+    recipesSearch(query, data.glossaries);
   }
   if (!query.length || query.length < 3) {
     searchState = recipesState;

@@ -19,15 +19,15 @@ function constructData(recipes, comparator = {ingredientsTags:[], ustensilsTags:
         ? acc.appliances[appliance] = [id]
         : acc.appliances[appliance].push(id);
     }
-    const recipeText = [name.toLowerCase(), ...ingredients.map(item => item.ingredient.toLowerCase()), description.toLowerCase()].join(' ');
-    acc.recipes.push({id: id, text: recipeText});
+    const terms = `${name} ${ingredients.map(item => item.ingredient).join(' ')} ${description}`
+    acc.glossaries.push({id: id, terms: terms});
     return acc;
-  }, { ingredients: {}, ustensils: {}, appliances: {}, recipes: [] });
+  }, { ingredients: {}, ustensils: {}, appliances: {}, glossaries: [] });
 }
 
 export default function Data(recipes, comparator) {
   const result = constructData(recipes, comparator);
-  this.recipes = result.recipes;
+  this.glossaries = result.glossaries;
   this.ingredients = Object.entries(result.ingredients);
   this.appliances = Object.entries(result.appliances);
   this.ustensils = Object.entries(result.ustensils);
