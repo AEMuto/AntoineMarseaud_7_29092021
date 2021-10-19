@@ -10,7 +10,6 @@ export function fastQuicksort(array) {
     const start = entry[0];
     const end = entry[1];
     let depth = entry[2];
-    console.log(depth);
     if(depth == 0) {
       array = shellSortBound(array, start, end);
       continue;

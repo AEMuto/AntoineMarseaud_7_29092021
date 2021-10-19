@@ -1,4 +1,5 @@
 import { removeDuplicate, sort } from '../utils/helpers.js';
+import { fastQuicksort } from '../utils/sorting.js';
 
 function constructData(recipes, comparator = {ingredientsTags:[], ustensilsTags:[], appliancesTags:[]}) {
   return recipes.reduce((acc, { id, ingredients, appliance, ustensils}) => {
@@ -41,5 +42,5 @@ export function Glossary(recipes) {
     });
     return acc;
   }, {});
-  this.entries = sort(Object.entries(results));
+  this.entries = fastQuicksort(Object.entries(results)); // https://jsben.ch/jSeTh
 }
