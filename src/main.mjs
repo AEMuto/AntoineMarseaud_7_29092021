@@ -23,7 +23,6 @@ let searchState = recipesState;
 
 // Création des "glossaires" **********************************************************************
 let data = new Data(recipesState);
-console.log(data.glossary);
 const originalData = data;
 
 // Mise à jour de l'état **************************************************************************
@@ -86,21 +85,22 @@ const recipeSearchbar = document.querySelector('#recipes');
 
 function recipesSearch(query, dataTarget) {
   const results = dataTarget
-    .filter(recipe => recipe.text.includes(query))
-    .map(recipe => recipe.id);
-  searchState = recipesState.filter(recipeInstance => results.includes(recipeInstance.id));
+    .filter(term => term[0].includes(query))
+    .map(term => term[1])
+    .flat();
+  searchState = recipesState.filter(recipeInstance => results.indexOf(recipeInstance.id) > -1);
   document.dispatchEvent(new CustomEvent('stateChanged'));
 }
 
 const handleSearchbarQuery = debounce(function(e) {
   const query = e.target.value.toLowerCase();
   if (query.length >= 3) {
-    recipesSearch(query, data.recipes);
+    recipesSearch(query, data.glossary);
   }
   if (e.key === 'Backspace' && query.length >= 3) {
     searchState = recipesState; // Reset de searchState
     data = originalData; // Reset du data
-    recipesSearch(query, data.recipes);
+    recipesSearch(query, data.glossary);
   }
   if (!query.length || query.length < 3) {
     searchState = recipesState;
