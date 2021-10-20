@@ -36,9 +36,13 @@ export function Data(recipes, comparator) {
 
 export function Glossary(recipes) {
   const results = recipes.reduce((acc, { id, name, ingredients, description }) => {
-    const template = `${name} ${ingredients.map(item => item.ingredient).join(' ')} ${description}`;
+    const ingredientsArray = ingredients.map(item => removeDiacritics(item.ingredient.toLowerCase()));
+    const normalizedName = removeDiacritics(name.toLowerCase());
+    const template = `${name} ${ingredientsArray.join(' ')} ${description}`;
     const string = removeDiacritics(template).toLowerCase();
-    const terms = removeDuplicate(string.match(/[\p{L}]{3,}/ug));
+    let terms = string.match(/[\p{L}]{3,}/ug);
+    terms.push(ingredientsArray, normalizedName);
+    terms = removeDuplicate(terms.flat()).sort();
     // console.log(`Pour la recette #${id}, j'ai : ${terms}`);
     //if (terms.includes('citron')) { console.log(`La recette #${id} contient du citron`) }
     terms.forEach(term => {
