@@ -1,5 +1,7 @@
 //https://jsben.ch/3I3n2
-//faster quicksort using a stack to eliminate recursion, sorting inplace to reduce memory usage, and using insertion sort for small partition sizes
+//https://jsben.ch/jSeTh
+// faster quicksort using a stack to eliminate recursion, sorting inplace to reduce memory usage, and using insertion sort for small partition sizes
+// Ne marche pas sur des strings, du moins besoin de changer la manière dont c'est implémenté
 export function fastQuicksort(array) {
   const stack = [];
   let entry = [0, array.length, 2 * Math.floor(Math.log(array.length) / Math.log(2))];

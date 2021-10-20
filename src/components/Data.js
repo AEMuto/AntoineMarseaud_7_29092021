@@ -1,5 +1,6 @@
 import { removeDuplicate, sort } from '../utils/helpers.js';
 import { fastQuicksort } from '../utils/sorting.js';
+import removeDiacritics from '../utils/diacritics.js';
 
 function constructData(recipes, comparator = {ingredientsTags:[], ustensilsTags:[], appliancesTags:[]}) {
   return recipes.reduce((acc, { id, ingredients, appliance, ustensils}) => {
@@ -35,12 +36,15 @@ export function Data(recipes, comparator) {
 
 export function Glossary(recipes) {
   const results = recipes.reduce((acc, { id, name, ingredients, description }) => {
-    const string = `${name} ${ingredients.map(item => item.ingredient).join(' ')} ${description}`
-    const terms = removeDuplicate(string.toLowerCase().match(/[\p{L}]{3,}/ug));
+    const template = `${name} ${ingredients.map(item => item.ingredient).join(' ')} ${description}`;
+    const string = removeDiacritics(template).toLowerCase();
+    const terms = removeDuplicate(string.match(/[\p{L}]{3,}/ug));
+    // console.log(`Pour la recette #${id}, j'ai : ${terms}`);
+    //if (terms.includes('citron')) { console.log(`La recette #${id} contient du citron`) }
     terms.forEach(term => {
       !acc[term] ? acc[term] = [id] : acc[term].push(id);
     });
     return acc;
   }, {});
-  this.entries = fastQuicksort(Object.entries(results)); // https://jsben.ch/jSeTh
+  this.entries = Object.entries(results).sort();
 }

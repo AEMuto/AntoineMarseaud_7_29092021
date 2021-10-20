@@ -3,6 +3,9 @@ import Recipe from './components/Recipe.js';
 import Tag from './components/Tag.js';
 import { Data, Glossary  } from './components/Data.js';
 import { debounce, keepDuplicate } from './utils/helpers.js';
+import removeDiacritics from './utils/diacritics.js';
+import binarySearch from './utils/search.js';
+
 
 // Instancier les Recettes et les insérer dans le DOM *********************************************
 const gallery = document.querySelector('.gallery');
@@ -85,16 +88,19 @@ document.addEventListener('stateChanged', updateGallery);
 const recipeSearchbar = document.querySelector('#recipes');
 
 function recipesSearch(query, dataTarget) {
+  const results1 = binarySearch(dataTarget, query);
+  console.log(results1);
   const results = dataTarget
     .filter(term => term[0].includes(query))
     .map(term => term[1])
     .flat();
+  console.log(results)
   searchState = recipesState.filter(recipeInstance => results.indexOf(recipeInstance.id) > -1);
   document.dispatchEvent(new CustomEvent('stateChanged'));
 }
 
 const handleSearchbarQuery = debounce(function(e) {
-  const query = e.target.value.toLowerCase();
+  const query = removeDiacritics(e.target.value.toLowerCase());
   if (query.length >= 3) {
     recipesSearch(query, glossary.entries);
   }
