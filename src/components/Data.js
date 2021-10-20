@@ -42,9 +42,7 @@ export function Glossary(recipes) {
     const string = removeDiacritics(template).toLowerCase();
     let terms = string.match(/[\p{L}]{3,}/ug);
     terms.push(ingredientsArray, normalizedName);
-    terms = removeDuplicate(terms.flat()).sort();
-    // console.log(`Pour la recette #${id}, j'ai : ${terms}`);
-    //if (terms.includes('citron')) { console.log(`La recette #${id} contient du citron`) }
+    terms = removeDuplicate(terms.flat());
     terms.forEach(term => {
       !acc[term] ? acc[term] = [id] : acc[term].push(id);
     });

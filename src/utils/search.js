@@ -9,15 +9,12 @@ export default function binarySearch(data, query, low = 0, high = data.length - 
     // les mêmes caractères que notre chaîne de caractère recherchée
     // insérer dans le tableau 'result' les ids des recettes correspondantes.
     if (data[mid][0].includes(query)) {
+      /* TODO: Changer le comportement lors d'un match
+      *        Prendre un range data.slice(mid -10, mid +10) start = mid - 10 < 0 ? 0 : mid - 10, end mid + 10 > data.length - 1 ? data.length - 1 : mid + 10;
+      *        Puis boucler à l'intérieur et vérifier avec
+      *        un include, et à chaque match pusher vers results
+      *        puis !return! */
       result.push(data[mid][1]);
-    }
-
-    // Hack
-    if (data[mid-1][0].includes(query)) {
-      result.push(data[mid-1][1]);
-    }
-    if (data[mid+1][0].includes(query)) {
-      result.push(data[mid+1][1]);
     }
 
     if (query < data[mid][0]) {
