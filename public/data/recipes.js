@@ -1,4 +1,4 @@
-export const recipes = [
+export const response = `[
   {
     "id": 1,
     "name": "Limonade de Coco",
@@ -1721,4 +1721,4 @@ export const recipes = [
     "appliance": "four",
     "ustensils": ["rouleau à patisserie", "fouet"]
   }
-]
+]`;

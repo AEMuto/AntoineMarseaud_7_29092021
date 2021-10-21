@@ -1,10 +1,13 @@
-import { recipes } from '../public/data/recipes.js';
+import { response } from '../public/data/recipes.js';
 import Recipe from './components/Recipe.js';
 import Tag from './components/Tag.js';
 import Data from './components/Data.js';
 import { debounce, keepDuplicate } from './utils/helpers.js';
 import removeDiacritics from './utils/diacritics.js';
 import linearSearch from './utils/search.js';
+
+// Importer les données
+const recipes = JSON.parse(response);
 
 // Instancier les Recettes et les insérer dans le DOM *********************************************
 const gallery = document.querySelector('.gallery');
