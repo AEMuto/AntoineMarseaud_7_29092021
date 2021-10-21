@@ -1,3 +1,5 @@
+import removeDiacritics from '../utils/diacritics.js';
+
 function constructData(recipes, comparator = {ingredientsTags:[], ustensilsTags:[], appliancesTags:[]}) {
   return recipes.reduce((acc, { id, name, ingredients, appliance, ustensils, description }) => {
     ingredients.forEach(({ ingredient }) => {
@@ -19,7 +21,8 @@ function constructData(recipes, comparator = {ingredientsTags:[], ustensilsTags:
         ? acc.appliances[appliance] = [id]
         : acc.appliances[appliance].push(id);
     }
-    const terms = `${name} ${ingredients.map(item => item.ingredient).join(' ')} ${description}`
+    const template = `${name} ${ingredients.map(item => item.ingredient).join(' ')} ${description}`;
+    const terms = removeDiacritics(template.toLowerCase());
     acc.glossaries.push({id: id, terms: terms});
     return acc;
   }, { ingredients: {}, ustensils: {}, appliances: {}, glossaries: [] });
