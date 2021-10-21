@@ -1,20 +1,30 @@
-export default function binarySearch(data, query, low = 0, high = data.length - 1) {
-  const result = [];
-  const queryLength = query.length;
+/**
+ * Recherche dichotomique qui à la première occurrence
+ * va prendre son index et faire une recherche linéaire
+ * sur une portée de indexOccurrence - RANGE à indexOccurrence + RANGE
+ * @param data
+ * @param query
+ * @param low
+ * @param high
+ * @param RANGE
+ * @returns {*[]|FlatArray<*[], 1>[]}
+ */
+export default function rangedBinarySearch(data, query, low = 0, high = data.length - 1, RANGE = 5) {
+  const results = [];
   while (high >= low) {
     // Définir le milieu de notre tableau trié
     const mid = Math.floor(low + (high - low) / 2);
 
-    // Si la chaîne de caractère à l'index du milieu commence par
-    // les mêmes caractères que notre chaîne de caractère recherchée
-    // insérer dans le tableau 'result' les ids des recettes correspondantes.
+    // Si la chaîne de caractère à l'index du milieu des caractères de notre chaîne de caractère recherchée
+    // créer un range +10 -10, effectuer une recherche linéaire sur le range et
+    // insérer dans le tableau 'result' les ids des recettes correspondantes, et le retourner
     if (data[mid][0].includes(query)) {
-      /* TODO: Changer le comportement lors d'un match
-      *        Prendre un range data.slice(mid -10, mid +10) start = mid - 10 < 0 ? 0 : mid - 10, end mid + 10 > data.length - 1 ? data.length - 1 : mid + 10;
-      *        Puis boucler à l'intérieur et vérifier avec
-      *        un include, et à chaque match pusher vers results
-      *        puis !return! */
-      result.push(data[mid][1]);
+      const start = mid - RANGE < 0 ? 0 : mid - RANGE;
+      const end = mid + RANGE > data.length - 1 ? data.length - 1 : mid + RANGE;
+      for (let i = start; i <= end; i++) {
+        data[i][0].includes(query) ? results.push(data[i][1]) : '';
+      }
+      return results.flat();
     }
 
     if (query < data[mid][0]) {
@@ -29,6 +39,6 @@ export default function binarySearch(data, query, low = 0, high = data.length - 
       low = mid + 1;
     }
   }
-  // Notre boucle est terminée, on renvoi les ids des recettes
-  return result.flat();
+  // Aucun résultats, on retourne result (array vide)
+  return results;
 }

@@ -45,11 +45,8 @@ export function keepDuplicate(array) {
   return results;
 }
 
-export function sort(arr, value= 0) {
-  const collator = new Intl.Collator('fr');
-  return [...arr].sort((a, b) => collator.compare(a[value], b[value]));
-}
-
 export function removeDuplicate(arr) {
   return [...new Set(arr)];
 }
+
+export const compare = (a, b) => a > b ? 1 : a < b ? -1 : 0;

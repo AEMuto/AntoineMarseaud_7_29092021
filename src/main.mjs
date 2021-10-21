@@ -1,11 +1,13 @@
-import { recipes } from '../public/data/recipes.js';
+import { response } from '../public/data/recipes.js';
 import Recipe from './components/Recipe.js';
 import Tag from './components/Tag.js';
 import { Data, Glossary  } from './components/Data.js';
 import { debounce, keepDuplicate, removeDuplicate } from './utils/helpers.js';
 import removeDiacritics from './utils/diacritics.js';
-import binarySearch from './utils/search.js';
+import rangedBinarySearch from './utils/search.js';
 
+// Importer les données
+const recipes = JSON.parse(response);
 
 // Instancier les Recettes et les insérer dans le DOM *********************************************
 const gallery = document.querySelector('.gallery');
@@ -27,7 +29,6 @@ let searchState = recipesState;
 // Création des "glossaires" **********************************************************************
 let data = new Data(recipesState);
 const glossary = new Glossary(recipesState);
-console.log(glossary.entries)
 const originalData = data;
 
 // Mise à jour de l'état **************************************************************************
@@ -89,21 +90,7 @@ document.addEventListener('stateChanged', updateGallery);
 const recipeSearchbar = document.querySelector('#recipes');
 
 function recipesSearch(query, dataTarget) {
-  let resultsBinary = binarySearch(dataTarget, query);
-  console.time('Binary Search')
-  resultsBinary = removeDuplicate(resultsBinary.sort((a,b) => a - b));
-  console.timeEnd('Binary Search')
-  console.log('Binary Search ', resultsBinary);
-  console.time('Linear Search')
-  const resultsLinear = dataTarget
-    .filter(term => term[0].includes(query))
-    .map(term => term[1])
-    .flat()
-    .sort((a,b) => a - b);
-  const results = removeDuplicate(resultsLinear);
-  console.timeEnd('Linear Search')
-  console.log('Linear Search', results)
-  console.log('\n')
+  const results = rangedBinarySearch(dataTarget, query);
   searchState = recipesState.filter(recipeInstance => results.indexOf(recipeInstance.id) > -1);
   document.dispatchEvent(new CustomEvent('stateChanged'));
 }
