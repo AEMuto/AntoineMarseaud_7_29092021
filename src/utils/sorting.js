@@ -1,7 +1,6 @@
 //https://jsben.ch/3I3n2
 //https://jsben.ch/jSeTh
 // faster quicksort using a stack to eliminate recursion, sorting inplace to reduce memory usage, and using insertion sort for small partition sizes
-// Ne marche pas sur des strings, du moins besoin de changer la manière dont c'est implémenté
 export function fastQuicksort(array) {
   const stack = [];
   let entry = [0, array.length, 2 * Math.floor(Math.log(array.length) / Math.log(2))];
@@ -12,6 +11,7 @@ export function fastQuicksort(array) {
     const start = entry[0];
     const end = entry[1];
     let depth = entry[2];
+    console.log(depth)
     if(depth == 0) {
       array = shellSortBound(array, start, end);
       continue;
@@ -44,13 +44,14 @@ function shellSortBound(array, start, end) {
       t = array[i][0];
       j = i;
       while (j >= inc && array[j - inc][0] > t) {
-        array[j][0] = array[j - inc][0];
+        array[j] = array[j - inc];
         j -= inc;
       }
       array[j][0] = t;
     }
     inc = Math.round(inc / 2.2);
   }
+  console.log('ShellSort Called, result: ', array)
   return array;
 }
 
@@ -59,10 +60,10 @@ function inplaceQuicksortPartition(array, start, end, pivotIndex) {
   let i = start, j = end;
   const pivot = array[pivotIndex][0];
   while(true) {
-    while(array[i][0] < pivot) {i++};
+    while(array[i][0] < pivot) { i++ }
     j--;
-    while(pivot < array[j][0]) {j--};
-    if(!(i<j)) {
+    while(pivot < array[j][0]) { j-- }
+    if(!(i < j)) {
       return i;
     }
     swap(array,i,j);
@@ -73,19 +74,19 @@ function inplaceQuicksortPartition(array, start, end, pivotIndex) {
 //Insertion sort
 function insertionSort(array) {
   for(let i = 1, l = array.length; i < l; i++) {
-    const value = array[i][0];
+    const value = array[i];
     for(var j = i - 1; j >= 0; j--) {
       if(array[j][0] <= value)
         break;
-      array[j + 1][0] = array[j][0];
+      array[j + 1] = array[j];
     }
-    array[j + 1][0] = value;
+    array[j + 1] = value;
   }
   return array;
 }
 
 function swap(array, a, b) {
-  const temp = array[a][0];
-  array[a][0] = array[b][0];
-  array[b][0] = temp;
+  const temp = array[a];
+  array[a] = array[b];
+  array[b] = temp;
 }

@@ -1,5 +1,6 @@
 import { compare, removeDuplicate } from '../utils/helpers.js';
 import removeDiacritics from '../utils/diacritics.js';
+import { fastQuicksort } from '../utils/sorting.js';
 
 function constructData(recipes, comparator = {ingredientsTags:[], ustensilsTags:[], appliancesTags:[]}) {
   return recipes.reduce((acc, { id, ingredients, appliance, ustensils}) => {
@@ -47,5 +48,8 @@ export function Glossary(recipes) {
     });
     return acc;
   }, {});
-  this.entries = Object.entries(results).sort((a, b) => compare(a[0], b[0]));
+  this.entries = Object.entries(results).slice(0).sort((a, b) => compare(a[0], b[0]));
+  //console.log(this.entries);
+  const test = fastQuicksort(Object.entries(results).slice(0));
+  //console.log(test);
 }
