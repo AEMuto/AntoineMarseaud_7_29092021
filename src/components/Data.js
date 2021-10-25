@@ -36,7 +36,7 @@ export default function Data(recipes, gallery = false, currentTags) {
 
     // Create Tags Data
     ingredients.forEach(({ ingredient }) => {
-      if (ingredientsTags.indexOf(ingredient.toLowerCase()) < 0 || !ingredientsTags) {
+      if (ingredientsTags.indexOf(ingredient.toLowerCase()) < 0 || !ingredientsTags.length) {
         !result.tags.ingredients[ingredient.toLowerCase()]
           ? result.tags.ingredients[ingredient.toLowerCase()] = [id]
           : result.tags.ingredients[ingredient.toLowerCase()].push(id);
@@ -44,14 +44,14 @@ export default function Data(recipes, gallery = false, currentTags) {
     });
 
     ustensils.forEach(ustensil  => {
-      if (ustensilsTags.indexOf(ustensil) < 0 || !ustensilsTags) {
+      if (ustensilsTags.indexOf(ustensil) < 0 || !ustensilsTags.length) {
         !result.tags.ustensils[ustensil]
           ? result.tags.ustensils[ustensil] = [id]
           : result.tags.ustensils[ustensil].push(id);
       }
     });
 
-    if (appliancesTags.indexOf(appliance) < 0 || !appliancesTags) {
+    if (appliancesTags.indexOf(appliance) < 0 || !appliancesTags.length) {
       !result.tags.appliances[appliance]
         ? result.tags.appliances[appliance] = [id]
         : result.tags.appliances[appliance].push(id);

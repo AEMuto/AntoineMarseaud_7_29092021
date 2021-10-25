@@ -64,7 +64,7 @@ function updateGallery() {
     }
   });
 
-  // Recalculer nos données à partir des recettes restantes
+  // Recalculer nos données pour les tags à partir des recettes restantes
   // On passe tagState en argument pour enlever les résultats correspondant à un tag
   // exemple: lait de coco existe en tag, le supprimer du data
   const currentTags = tagsState.reduce((acc, {value, category}) => {
@@ -96,7 +96,7 @@ const handleSearchbarQuery = debounce(function(e) {
   }
   if (!query.length || query.length < 3) {
     searchState = recipesState;
-    document.dispatchEvent(new CustomEvent('stateChanged')); // Bypass showGalleryResults
+    document.dispatchEvent(new CustomEvent('stateChanged')); // Bypass search
   }
 });
 
@@ -183,7 +183,7 @@ const dropdownsSearchbar = document.querySelectorAll('.dropdown__searchbar input
 let tempResultItems;
 
 function showDropdownsResults(category, resultsContainer, query) {
-  // Champs de recherche du dropdown vide
+  // Champs de recherche du dropdown vide et recherche principale avec valeur ou tag existant
   if (!query && (recipeSearchbar.value || tagsState.length)) {
     const items = data[category].map(entry => `<li data-category="${category}">${entry[0]}</li>`).join('');
     tempResultItems = items;
