@@ -1,55 +1,70 @@
-import { compare, removeDuplicate } from '../utils/helpers.js';
+import { removeDuplicate } from '../utils/helpers.js';
 import removeDiacritics from '../utils/diacritics.js';
 import { fastQuicksort } from '../utils/sorting.js';
+import Recipe from './Recipe.js';
 
-function constructData(recipes, comparator = {ingredientsTags:[], ustensilsTags:[], appliancesTags:[]}) {
-  return recipes.reduce((acc, { id, ingredients, appliance, ustensils}) => {
-    ingredients.forEach(({ ingredient }) => {
-      if (comparator.ingredientsTags.indexOf(ingredient.toLowerCase()) < 0) {
-        !acc.ingredients[ingredient.toLowerCase()]
-          ? acc.ingredients[ingredient.toLowerCase()] = [id]
-          : acc.ingredients[ingredient.toLowerCase()].push(id);
-      }
-    });
-    ustensils.forEach(ustensil  => {
-      if (comparator.ustensilsTags.indexOf(ustensil) < 0) {
-        !acc.ustensils[ustensil]
-          ? acc.ustensils[ustensil] = [id]
-          : acc.ustensils[ustensil].push(id);
-      }
-    });
-    if (comparator.appliancesTags.indexOf(appliance) < 0) {
-      !acc.appliances[appliance]
-        ? acc.appliances[appliance] = [id]
-        : acc.appliances[appliance].push(id);
+export default function Data(recipes, gallery = false, currentTags) {
+  const result = { state : [], tags: { ingredients: {}, ustensils: {}, appliances: {} }, dictionnary: {}};
+  !currentTags ? currentTags = { ingredientsTags: [], ustensilsTags: [], appliancesTags: [] } : '';
+  const { ingredientsTags, ustensilsTags, appliancesTags } = currentTags;
+
+  recipes.forEach(recipe => {
+
+    // Destructure recipe
+    const { id, name, ingredients, appliance, ustensils, description } = recipe;
+
+    // Initialize State & Dictionnary
+    if (gallery) {
+
+      // State & Dom recipe template cards insertion
+      const instance = new Recipe(recipe);
+      result.state.push(instance);
+      gallery.insertAdjacentHTML('beforeend', instance.getRecipeCardTemplate());
+
+      // Add entries to dictionnary
+      const ingredientsArray = ingredients.map(item => removeDiacritics(item.ingredient.toLowerCase()));
+      const normalizedName = removeDiacritics(name.toLowerCase());
+      const template = `${name} ${ingredientsArray.join(' ')} ${description}`;
+      const string = removeDiacritics(template).toLowerCase();
+      let terms = string.match(/[\p{L}]{3,}/ug);
+      terms.push(ingredientsArray, normalizedName);
+      terms = removeDuplicate(terms.flat());
+      terms.forEach(term => {
+        !result.dictionnary[term] ? result.dictionnary[term] = [id] : result.dictionnary[term].push(id);
+      });
     }
-    return acc;
-  }, { ingredients: {}, ustensils: {}, appliances: {} });
-}
 
-export function Data(recipes, comparator) {
-  const result = constructData(recipes, comparator);
-  this.ingredients = Object.entries(result.ingredients);
-  this.appliances = Object.entries(result.appliances);
-  this.ustensils = Object.entries(result.ustensils);
-}
-
-export function Glossary(recipes) {
-  const results = recipes.reduce((acc, { id, name, ingredients, description }) => {
-    const ingredientsArray = ingredients.map(item => removeDiacritics(item.ingredient.toLowerCase()));
-    const normalizedName = removeDiacritics(name.toLowerCase());
-    const template = `${name} ${ingredientsArray.join(' ')} ${description}`;
-    const string = removeDiacritics(template).toLowerCase();
-    let terms = string.match(/[\p{L}]{3,}/ug);
-    terms.push(ingredientsArray, normalizedName);
-    terms = removeDuplicate(terms.flat());
-    terms.forEach(term => {
-      !acc[term] ? acc[term] = [id] : acc[term].push(id);
+    // Create Tags Data
+    ingredients.forEach(({ ingredient }) => {
+      if (ingredientsTags.indexOf(ingredient.toLowerCase()) < 0 || !ingredientsTags) {
+        !result.tags.ingredients[ingredient.toLowerCase()]
+          ? result.tags.ingredients[ingredient.toLowerCase()] = [id]
+          : result.tags.ingredients[ingredient.toLowerCase()].push(id);
+      }
     });
-    return acc;
-  }, {});
-  this.entries = Object.entries(results).slice(0).sort((a, b) => compare(a[0], b[0]));
-  //console.log(this.entries);
-  const test = fastQuicksort(Object.entries(results).slice(0));
-  //console.log(test);
+
+    ustensils.forEach(ustensil  => {
+      if (ustensilsTags.indexOf(ustensil) < 0 || !ustensilsTags) {
+        !result.tags.ustensils[ustensil]
+          ? result.tags.ustensils[ustensil] = [id]
+          : result.tags.ustensils[ustensil].push(id);
+      }
+    });
+
+    if (appliancesTags.indexOf(appliance) < 0 || !appliancesTags) {
+      !result.tags.appliances[appliance]
+        ? result.tags.appliances[appliance] = [id]
+        : result.tags.appliances[appliance].push(id);
+    }
+
+  });
+
+  if (gallery) {
+    this.state = result.state;
+    this.dictionnary = fastQuicksort(Object.entries(result.dictionnary));
+  }
+
+  this.ingredients = Object.entries(result.tags.ingredients);
+  this.appliances = Object.entries(result.tags.appliances);
+  this.ustensils = Object.entries(result.tags.ustensils);
 }

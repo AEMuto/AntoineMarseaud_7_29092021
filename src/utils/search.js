@@ -15,14 +15,14 @@ export default function rangedBinarySearch(data, query, low = 0, high = data.len
     // Définir le milieu de notre tableau trié
     const mid = Math.floor(low + (high - low) / 2);
 
-    // Si la chaîne de caractère à l'index du milieu des caractères de notre chaîne de caractère recherchée
-    // créer un range +10 -10, effectuer une recherche linéaire sur le range et
+    // Si la chaîne de caractère à l'index du milieu commence par les mêmes que ceux de notre recherche
+    // Créer un range +10 -10, effectuer une recherche linéaire sur le range et
     // insérer dans le tableau 'result' les ids des recettes correspondantes, et le retourner
-    if (data[mid][0].includes(query)) {
+    if (data[mid][0].startsWith(query)) {
       const start = mid - RANGE < 0 ? 0 : mid - RANGE;
       const end = mid + RANGE > data.length - 1 ? data.length - 1 : mid + RANGE;
       for (let i = start; i <= end; i++) {
-        data[i][0].includes(query) ? results.push(data[i][1]) : '';
+        data[i][0].startsWith(query) ? results.push(data[i][1]) : '';
       }
       return results.flat();
     }

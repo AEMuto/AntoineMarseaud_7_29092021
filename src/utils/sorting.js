@@ -11,8 +11,8 @@ export function fastQuicksort(array) {
     const start = entry[0];
     const end = entry[1];
     let depth = entry[2];
-    console.log(depth)
-    if(depth == 0) {
+
+    if(depth === 0) {
       array = shellSortBound(array, start, end);
       continue;
     }
@@ -41,17 +41,16 @@ function shellSortBound(array, start, end) {
     i, j, t;
   while (inc >= start) {
     for (i = inc; i < end; i++) {
-      t = array[i][0];
+      t = array[i];
       j = i;
-      while (j >= inc && array[j - inc][0] > t) {
+      while (j >= inc && array[j - inc][0] > t[0]) {
         array[j] = array[j - inc];
         j -= inc;
       }
-      array[j][0] = t;
+      array[j] = t;
     }
     inc = Math.round(inc / 2.2);
   }
-  console.log('ShellSort Called, result: ', array)
   return array;
 }
 
@@ -66,7 +65,7 @@ function inplaceQuicksortPartition(array, start, end, pivotIndex) {
     if(!(i < j)) {
       return i;
     }
-    swap(array,i,j);
+    swap(array, i, j);
     i++;
   }
 }
@@ -76,7 +75,7 @@ function insertionSort(array) {
   for(let i = 1, l = array.length; i < l; i++) {
     const value = array[i];
     for(var j = i - 1; j >= 0; j--) {
-      if(array[j][0] <= value)
+      if(array[j][0] <= value[0])
         break;
       array[j + 1] = array[j];
     }

@@ -1,8 +1,7 @@
 import { response } from '../public/data/recipes.js';
-import Recipe from './components/Recipe.js';
 import Tag from './components/Tag.js';
-import { Data, Glossary  } from './components/Data.js';
-import { debounce, keepDuplicate, removeDuplicate } from './utils/helpers.js';
+import Data from './components/Data.js';
+import { debounce, keepDuplicate } from './utils/helpers.js';
 import removeDiacritics from './utils/diacritics.js';
 import rangedBinarySearch from './utils/search.js';
 
@@ -13,23 +12,14 @@ const recipes = JSON.parse(response);
 const gallery = document.querySelector('.gallery');
 const noResults = gallery.querySelector('.gallery__empty'); // Texte à montrer si aucun résultats
 
-const recipesState = [];
+let data = new Data(recipes, gallery);
+
+const originalData = data;
+const recipesState = data.state;
+let searchState = recipesState;
 let tagsState = [];
 
-recipes.forEach(recipe => {
-  const instance = new Recipe(recipe);
-  recipesState.push(instance);
-  gallery.insertAdjacentHTML('beforeend', instance.getRecipeCardTemplate());
-});
-
-// Variable post-insertion
 const galleryCards = Array.from(gallery.querySelectorAll('.card.card--recipe'));
-let searchState = recipesState;
-
-// Création des "glossaires" **********************************************************************
-let data = new Data(recipesState);
-const glossary = new Glossary(recipesState);
-const originalData = data;
 
 // Mise à jour de l'état **************************************************************************
 function intersectStates(recipesState, searchState, tagsState) {
@@ -77,11 +67,11 @@ function updateGallery() {
   // Recalculer nos données à partir des recettes restantes
   // On passe tagState en argument pour enlever les résultats correspondant à un tag
   // exemple: lait de coco existe en tag, le supprimer du data
-  const comparator = tagsState.reduce((acc, {value, category}) => {
+  const currentTags = tagsState.reduce((acc, {value, category}) => {
     acc[`${category}Tags`].push(value);
     return acc;
   }, {ingredientsTags:[], ustensilsTags:[], appliancesTags:[]})
-  data = new Data(results, comparator);
+  data = new Data(results, false, currentTags);
 }
 
 document.addEventListener('stateChanged', updateGallery);
@@ -98,12 +88,11 @@ function recipesSearch(query, dataTarget) {
 const handleSearchbarQuery = debounce(function(e) {
   let query = removeDiacritics(e.target.value.toLowerCase());
   if (query.length >= 3) {
-    recipesSearch(query, glossary.entries);
+    recipesSearch(query, originalData.dictionnary);
   }
   if (e.key === 'Backspace' && query.length >= 3) {
     searchState = recipesState; // Reset de searchState
-    data = originalData; // Reset du data
-    recipesSearch(query, glossary.entries);
+    recipesSearch(query, originalData.dictionnary);
   }
   if (!query.length || query.length < 3) {
     searchState = recipesState;
