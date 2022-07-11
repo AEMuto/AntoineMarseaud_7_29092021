@@ -88,6 +88,7 @@ function recipesSearch(query, dataTarget) {
 const handleSearchbarQuery = debounce(function(e) {
   let query = removeDiacritics(e.target.value.toLowerCase());
   if (query.length >= 3) {
+    console.log(originalData.dictionnary)
     recipesSearch(query, originalData.dictionnary);
   }
   if (e.key === 'Backspace' && query.length >= 3) {
